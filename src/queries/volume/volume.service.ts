@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ethers, JsonRpcProvider } from 'ethers';
+import { ethers, EventFragment, JsonRpcProvider } from 'ethers';
 // import fs from 'fs';
 import { BlockchainProviderService } from 'src/utils/blockchain-provider/blockchain-provider.service';
 import * as fs from 'fs';
@@ -14,7 +14,7 @@ export class VolumeService {
   constructor(private blockchainProviderService: BlockchainProviderService) {
     console.log('GasStrategyService initialized');
     console.log(`Using RPC endpoint: ${process.env.PROVIDER_URL}}`);
-    this.provider = new JsonRpcProvider(process.env.PROVIDER_URL);
+    this.provider = blockchainProviderService.getProvider('fuse')
 
     const abiPath = './abi/erc20.abi.json'
     this.tokenAbi = JSON.parse(fs.readFileSync(abiPath, 'utf-8'));
@@ -43,14 +43,15 @@ export class VolumeService {
     const filter = {
       address: tokenAddress,
       topics: [
-        ethers.id('Transfer(address,address,uint256)'),
-        ethers.zeroPadValue(contractAddress, 32),
-        ethers.zeroPadValue(contractAddress, 32)
+        ethers.utils.id('Transfer(address,address,uint256)'),
+        ethers.utils.hexZeroPad(contractAddress, 32),
+        ethers.utils.hexZeroPad(contractAddress, 32)
       ].filter(Boolean), // Remove null values
     };
 
-
-    const events = await contract.queryFilter(filter);
+    // const transferEventFragment: EventFragment = ethers.EventFragment.fromString('Transfer(address,address,uint256)');
+    
+    const events = await contract.queryFilter();
     console.log(`Transfer events: ${events.length}`);
     return BigInt(events.length) as bigint;
     // const feeData = await this.provider.getFeeData();

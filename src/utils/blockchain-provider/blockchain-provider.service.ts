@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { JsonRpcProvider } from 'ethers';
+import ethers from 'ethers';
 
 @Injectable()
 export class BlockchainProviderService {
-  private providers: { [networkName: string]: JsonRpcProvider } = {};
+  private providers: { [networkName: string]: ethers.providers.JsonRpcProvider } = {};
 
   constructor() {
     const networkUrls = {
@@ -12,7 +12,7 @@ export class BlockchainProviderService {
     }
     for (const [network, url] of Object.entries(networkUrls)) {
       if (url) {
-        this.providers[network] = new JsonRpcProvider(url);
+        this.providers[network] = new ethers.providers.JsonRpcProvider(url);
         console.log(`Initialized provider for ${network}`);
       } else {
         console.warn(`RPC URL for ${network} is not set`);
@@ -21,7 +21,7 @@ export class BlockchainProviderService {
   }
 
 
-  getProvider(networkName: string): JsonRpcProvider {
+  getProvider(networkName: string): ethers.providers.JsonRpcProvider {
     return this.providers[networkName];
   }
 }

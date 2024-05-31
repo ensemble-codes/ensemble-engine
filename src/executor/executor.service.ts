@@ -1,9 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { WalletService } from '../wallet/wallet.service'; // Adjust the import path as necessary
-import { BaseWallet, Contract, JsonRpcProvider, parseEther, parseUnits, Provider, SigningKey, Wallet } from 'ethers';
 import { LoadTestCommandDto } from 'src/commands-lib/load-test.dto';
 import { CallCommandDto } from 'src/commands-lib/call-command.dto';
 import { BlockchainProviderService } from 'src/utils/blockchain-provider/blockchain-provider.service';
+import ethers from 'ethers';
 
 function pickRandomValue(arr) {
   if (arr.length === 0) {
@@ -68,7 +68,7 @@ export class ExecutorService {
       const toWallet = pickRandomValue(wallets)
       const wallet = new Wallet(fromWallet.privateKey)
 
-      const amount = parseEther('0.000000001');
+      const amount = ethers.utils.parseEther('0.000000001');
       console.log(`Transferring funds from ${fromWallet.address} to ${toWallet.address}`);
       const txResponse = await wallet.sendTransaction({
         to: toWallet.address,
