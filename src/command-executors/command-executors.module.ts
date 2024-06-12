@@ -9,13 +9,12 @@ import { CommandsModule } from 'src/commands/commands.module';
 import { BlockchainProviderModule } from 'src/utils/blockchain-provider/blockchain-provider.module';
 import { GameActivityCommandExecutor } from './game-activity-command-executor';
 import { VolumeModule } from 'src/queries/volume/volume.module';
-
-
+import { DexActivityCommandExecutor } from './dex-activity-executor';
 
 @Module({
   imports: [ExecutorModule, CommandsModule, BlockchainProviderModule, VolumeModule],
   controllers: [CommandExecutorsController],
-  providers: [CommandExecutorsService, CommandExecutorFactory, GasPriceService, GasCommandExecutor, GameActivityCommandExecutor],
+  providers: [CommandExecutorsService, CommandExecutorFactory, GasPriceService, GasCommandExecutor, GameActivityCommandExecutor, DexActivityCommandExecutor],
   exports: [CommandExecutorFactory],
 })
 export class CommandExecutorsModule {}
