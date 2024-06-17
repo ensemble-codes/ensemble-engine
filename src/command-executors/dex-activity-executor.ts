@@ -30,14 +30,19 @@ export class DexActivityCommandExecutor extends BaseCommandExecutor {
       throw new Error('WALLET_PRIVATE_KEY is not set in the environment variables');
     }
 
-    await this.executorService.executeSwap(
-      firstTokenAddress,
-      secondTokenAddress,
-      contractAddress,
-      walletAddress,
-      walletPk,
-      network
-    );
+    try {
+      await this.executorService.executeSwap(
+        firstTokenAddress,
+        secondTokenAddress,
+        contractAddress,
+        walletAddress,
+        walletPk,
+        network
+      );
+    } catch (error) {
+      console.log(error)
+    }
+
 
 
     // const volume = await this.volumeService.fetch(contractAddress, tokenAddress, network)
