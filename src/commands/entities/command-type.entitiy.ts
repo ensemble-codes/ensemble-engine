@@ -28,4 +28,9 @@ export const COMMAND_TYPES: CommandType[] = [
     template: [[{'volume_of()':['$contract_address', '$token_address']},'$min_volume'],
       [{'number_of_players()': '$contract_address'}, '$min_players']],
   },
+  {
+    name: 'generate-dex-activity',
+    description: 'Generate game activity',
+    template: [[{'volume_of()':['$contract_address', '$first_token_address', '$second_token_address']},'$min_volume']],
+  },
 ];

@@ -13,7 +13,7 @@ export class EngineService {
   @Interval(5000)
   async loop() {
     console.log('EngineService loop, fetching active commands:');
-    const commands = await this.commandsService.findPending();
+    const commands = await this.commandsService.findActive();
     if (commands.length === 0) { 
       console.log('No active commands found');
     }
