@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import fs from 'fs';
 
-import { CreateWorkflowDto } from './dto/create-workflow.dto';
-import { UpdateWorkflowDto } from './dto/update-workflow.dto';
+import { CreateWorkflowDto } from '../dto/create-workflow.dto';
+import { UpdateWorkflowDto } from '../dto/update-workflow.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Workflow } from './entities/workflow.entity'
+import { Workflow } from '../entities/workflow.entity'
 
 
 @Injectable()
@@ -19,21 +19,20 @@ export class WorkflowsService {
   create(createWorkflowDto: CreateWorkflowDto) {
     console.log(createWorkflowDto)
     return this.workflowModel.create(createWorkflowDto);
-    // return this.workflowRepository.create(createWorkflowDto);
-    // return 'This action adds a new workflow';
   }
 
   findAll() {
-    // const doc = yaml.load(fs.readFileSync('./sample/workflow.yml', 'utf8'))[0];
-    // return [doc];
     return this.workflowModel.find().exec();
-    // return `This action returns all workflows`;
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} workflow`;
+    return this.workflowModel.findById(id).exec();
   }
 
+  findByName(name: string) {
+    return this.workflowModel.findOne({ name }).exec();
+  }
+  
   update(id: number, updateWorkflowDto: UpdateWorkflowDto) {
     return `This action updates a #${id} workflow`;
   }
