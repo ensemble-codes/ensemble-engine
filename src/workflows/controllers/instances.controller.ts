@@ -12,12 +12,6 @@ export class WorkflowInstancesController {
   @Post()
   async create(@Body() createWorkflowInstanceDto: CreateWorkflowInstanceDto) {
     return this.workflowInstancesService.create(createWorkflowInstanceDto);
-    // const workflow = await this.workflowsService.findByName(name);
-    // console.log(workflow);
-    // return this.workflowsService.createInstance(name);
-    // console.log(id);
-    // return workflow;
-    // return this.workflowsService.create(createWorkflowDto);
   }
 
   @Get()
@@ -27,16 +21,22 @@ export class WorkflowInstancesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.workflowInstancesService.findOne(+id);
+    return this.workflowInstancesService.findOne(id);
+  }
+
+  @Get('apply/:id')
+  findAndApply(@Param('id') id: string) {
+    console.log('id', id);
+    return this.workflowInstancesService.findAndApply(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateWorkflowDto: UpdateWorkflowDto) {
-    return this.workflowInstancesService.update(+id, updateWorkflowDto);
+    return this.workflowInstancesService.update(id, updateWorkflowDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.workflowInstancesService.remove(+id);
+    return this.workflowInstancesService.remove(id);
   }
 }

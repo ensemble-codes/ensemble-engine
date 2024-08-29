@@ -19,16 +19,16 @@ export class WorkflowsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.workflowsService.findOne(+id);
+    return this.workflowsService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateWorkflowDto: UpdateWorkflowDto) {
-    return this.workflowsService.update(+id, updateWorkflowDto);
+    return this.workflowsService.update(id, updateWorkflowDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.workflowsService.remove(+id);
+    return this.workflowsService.remove(id);
   }
 }

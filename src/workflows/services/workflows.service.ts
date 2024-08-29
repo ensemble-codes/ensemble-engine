@@ -25,7 +25,7 @@ export class WorkflowsService {
     return this.workflowModel.find().exec();
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.workflowModel.findById(id).exec();
   }
 
@@ -33,11 +33,11 @@ export class WorkflowsService {
     return this.workflowModel.findOne({ name }).exec();
   }
   
-  update(id: number, updateWorkflowDto: UpdateWorkflowDto) {
+  update(id: string, updateWorkflowDto: UpdateWorkflowDto) {
     return `This action updates a #${id} workflow`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} workflow`;
   }
 }

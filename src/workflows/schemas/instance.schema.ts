@@ -18,7 +18,7 @@ export class WorkflowInstance extends Document {
   completedAt: Date;
 
   @Prop({ type: Map, of: String })
-  metadata: Map<string, string>; // Store any additional instance-specific data as key-value pairs
+  params: Map<string, string>;
 }
 
 export const WorkflowInstanceSchema = SchemaFactory.createForClass(WorkflowInstance);
