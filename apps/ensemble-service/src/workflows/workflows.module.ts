@@ -13,6 +13,6 @@ import { WorkflowInstance, WorkflowInstanceSchema } from './schemas/instance.sch
   ],
   controllers: [WorkflowsController, WorkflowInstancesController],
   providers: [WorkflowsService, WorkflowInstancesService],
-  exports: [WorkflowsService],
+  exports: [WorkflowsService, WorkflowInstancesService],
 })
 export class WorkflowsModule {}

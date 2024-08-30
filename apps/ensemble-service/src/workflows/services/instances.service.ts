@@ -28,6 +28,11 @@ export class WorkflowInstancesService {
     return this.workflowInstanceModel.find().populate('workflow').exec();
   }
 
+    // Find all workflow instances
+  async findRunning(): Promise<WorkflowInstance[]> {
+    return this.workflowInstanceModel.find({ status: 'running' }).populate('workflow').exec();
+  }
+
   // Find a specific workflow instance by ID
   async findOne(id: string): Promise<WorkflowInstance> {
     return this.workflowInstanceModel.findById(id).populate('workflow').exec();

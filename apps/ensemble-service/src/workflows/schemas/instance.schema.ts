@@ -11,6 +11,9 @@ export class WorkflowInstance extends Document {
   @Prop({ default: 'pending' })
   status: string;
 
+  @Prop({ default: 0 })
+  currentStepIndex: number;
+
   @Prop({ type: Date })
   startedAt: Date;
 

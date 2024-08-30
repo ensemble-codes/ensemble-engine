@@ -1,7 +1,5 @@
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { WorkflowsModule } from './workflows/workflows.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AbiModule } from './abi/abi.module';
@@ -13,7 +11,7 @@ import { AbiModule } from './abi/abi.module';
     WorkflowsModule,
     AbiModule
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
