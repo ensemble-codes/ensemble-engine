@@ -3,6 +3,10 @@ import { Interval } from '@nestjs/schedule';
 import { Trigger } from 'apps/ensemble-service/src/workflows/entities/trigger.entity';
 import { Workflow } from 'apps/ensemble-service/src/workflows/entities/workflow.entity';
 import { WorkflowInstancesService } from 'apps/ensemble-service/src/workflows/services/instances.service';
+import { BlockchainProviderService } from '../blockchain-provider/blockchain-provider.service';
+import { AbiService } from 'apps/ensemble-service/src/abi/abi.service';
+import { ethers } from 'ethers';
+
 // import { ContractEntity } from 'src/workflows/entities/Contract.entity';
 // import { Step } from 'src/workflows/entities/step.entity';
 // import { Workflow } from 'src/workflows/entities/workflow.entity';
@@ -11,6 +15,10 @@ import { WorkflowInstancesService } from 'apps/ensemble-service/src/workflows/se
 // import { promises as fs } from 'fs';
 // import { WalletService } from 'src/wallet/wallet.service';
 // import { BaseWallet, Contract, parseEther, SigningKey } from 'ethers';
+import { TriggerSnapshot } from '../../../ensemble-service/src/workflows/entities/trigger-snapshot.entity';
+import { time } from 'console';
+import { timestamp } from 'rxjs';
+import { WorkflowInstance } from 'apps/ensemble-service/src/workflows/schemas/instance.schema';
 
 /**
  * Generates a random number between 5 and 20.
@@ -19,12 +27,14 @@ import { WorkflowInstancesService } from 'apps/ensemble-service/src/workflows/se
 function generateRandom(): number {
   return Math.floor(Math.random() * (20 - 5 + 1)) + 5;
 }
-
+  
 @Injectable()
 export class WorkflowProcessorService {
 
   constructor(
-    private readonly workflowInstancesService: WorkflowInstancesService
+    private readonly workflowInstancesService: WorkflowInstancesService,
+    private readonly providerService: BlockchainProviderService,
+    private readonly abiService: AbiService,
   ) {
     console.log('WorkflowProcessor V2 service created');
   }
@@ -37,23 +47,38 @@ export class WorkflowProcessorService {
     for (const instance of runningInstances) {
       const currentStep = instance.workflow.steps[instance.currentStepIndex];
       const { trigger } = currentStep;
-      console.log({ trigger });
-      await this.validateTrigger(trigger, instance.workflow.toJSON());
-
+      await this.validateTrigger(trigger, instance);
     }
     console.log('end: WorkflorProcessor V2 loop');
   }
 
-  validateTrigger(trigger: Trigger, workflow: Workflow) {
-    console.log('validating trigger', trigger);
-    const contract = this.getConract(trigger.contract, workflow);
-    console.log({ contract });
-    return true;
+  async validateTrigger(trigger: Trigger, instance: WorkflowInstance) {
+    console.log(`validating trigger: ${trigger.name}`);
+    const contract = await this.getConract(trigger.contract, instance.workflow.toJSON());
+    console.log(trigger.method)
+    let value = await contract[trigger.method].staticCall()
+    const triggerSnapshot = {
+      name: trigger.name,
+      data: value,
+      timestamp: new Date()
+    }
+    const isUpdated = await this.workflowInstancesService.storeTriggerSnapsot(instance.id, triggerSnapshot);
+    console.log({ isUpdated });
+    // contract.on(trigger.event, async (event) => {
+    //   console.log(`Event: ${trigger.event} received`);
+    //   console.log({ event });
+    // });
+    // console.log({ contract });
+    // return true;
   }
-  getConract(contract: string, workflow: Workflow) {
+
+  async getConract(contractName: string, workflow: Workflow) {
     const { contracts } = workflow;
-    return contracts.find(c => c.name === contract);
-    // throw new Error('Method not implemented.');
+    const contractEntity = contracts.find(c => c.name === contractName);
+    const contractABI = await this.abiService.findByName(contractEntity.abi)
+    const provider = this.providerService.getProvider(contractEntity.network);
+    const contract = new ethers.Contract(contractEntity.address, contractABI.abi, provider);
+    return contract
   }
 
 //   processWorkflow(workflow: Workflow) {

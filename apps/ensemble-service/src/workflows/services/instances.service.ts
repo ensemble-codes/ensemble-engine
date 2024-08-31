@@ -4,6 +4,8 @@ import { Model } from 'mongoose';
 import { WorkflowInstance } from '../schemas/instance.schema';
 import { CreateWorkflowInstanceDto } from '../dto/create-instance.dto';
 import { WorkflowsService } from './workflows.service';
+import { TriggerSnapshot } from '../entities/trigger-snapshot.entity';
+import { ADDRGETNETWORKPARAMS } from 'dns';
 
 @Injectable()
 export class WorkflowInstancesService {
@@ -48,10 +50,30 @@ export class WorkflowInstancesService {
     // console.log('instance', instance);
 
     const workflow = instance.workflow;
-    console.log('params', instance.params);
+    // console.log('params', instance.params);
     const appliedWorkflow = traverseAndInterpolate(workflow.toJSON(), instance.params);
     return appliedWorkflow;
   }
+
+    // Update a workflow instance
+    async storeTriggerSnapsot(id: string, snapshot: TriggerSnapshot): Promise<boolean> {
+      const instance = await this.findOne(id);
+      if (!instance) {
+        throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
+      }
+      // console.log('instance.triggerSnapshots', instance.triggerSnapshots);
+
+      if (!instance.triggerSnapshots) {
+        instance.triggerSnapshots = new Map<string, TriggerSnapshot>();
+      }
+      console.log('instance.triggerSnapshots', instance.triggerSnapshots);
+      const oldSnapshot = instance.triggerSnapshots.get(snapshot.name);
+      instance.triggerSnapshots.set(snapshot.name, snapshot);
+      await instance.save();
+
+      const isUpdated = !oldSnapshot || oldSnapshot.data.toString() !== snapshot.data.toString();
+      return isUpdated;
+    }
 
   // Update a workflow instance
   async update(id: string, updateWorkflowInstanceDto: any) {

@@ -7,7 +7,7 @@ export class Abi extends Document {
   name: string;
 
   @Prop({ type: Object, required: true })
-  abi: object;
+  abi: object[];
 }
 
 export const AbiSchema = SchemaFactory.createForClass(Abi);

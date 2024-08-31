@@ -6,6 +6,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Workflow, WorkflowSchema } from 'apps/ensemble-service/src/workflows/schemas/workflow.schema';
 import { WorkflowInstance, WorkflowInstanceSchema } from 'apps/ensemble-service/src/workflows/schemas/instance.schema';
 import { WorkflowsModule } from 'apps/ensemble-service/src/workflows/workflows.module';
+import { BlockchainProviderModule } from '../blockchain-provider/blockchain-provider.module';
+import { Abi } from 'apps/ensemble-service/src/abi/schemas/abi.schema';
+import { AbiModule } from 'apps/ensemble-service/src/abi/abi.module';
 // import { WorkflowsModule } from 'src/workflows/workflows.module';
 // import { WorkflowEngineService } from './workflow-engine.service';
 // import { BlockchainProviderModule } from 'src/utils/blockchain-provider/blockchain-provider.module';
@@ -14,7 +17,9 @@ import { WorkflowsModule } from 'apps/ensemble-service/src/workflows/workflows.m
   imports: [
     // MongooseModule.forFeature([{ name: Workflow.name, schema: WorkflowSchema }]),
     // MongooseModule.forFeature([{ name: WorkflowInstance.name, schema: WorkflowInstanceSchema }]),
-    WorkflowsModule
+    WorkflowsModule,
+    BlockchainProviderModule,
+    AbiModule
   ],
   providers: [WorkflowProcessorService]
 })

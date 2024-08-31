@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Workflow } from './workflow.schema'; // Adjust the path if necessary
+import { TriggerSnapshot } from '../entities/trigger-snapshot.entity';
 
 @Schema({ timestamps: true })
 export class WorkflowInstance extends Document {
@@ -13,6 +14,9 @@ export class WorkflowInstance extends Document {
 
   @Prop({ default: 0 })
   currentStepIndex: number;
+
+  @Prop({ type:  Map<string, TriggerSnapshot>, default: new Map<string, TriggerSnapshot>() })
+  triggerSnapshots: Map<string, TriggerSnapshot>;
 
   @Prop({ type: Date })
   startedAt: Date;

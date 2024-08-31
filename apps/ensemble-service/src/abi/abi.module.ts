@@ -10,5 +10,6 @@ import { MongooseModule } from '@nestjs/mongoose';
   ],
   controllers: [AbiController],
   providers: [AbiService],
+  exports: [AbiService]
 })
 export class AbiModule {}
