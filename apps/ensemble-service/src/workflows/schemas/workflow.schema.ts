@@ -11,6 +11,9 @@ export class Workflow extends Document {
   name: string;
 
   @Prop()
+  version: string;
+
+  @Prop()
   wallet: WalletEntity;
 
   @Prop()

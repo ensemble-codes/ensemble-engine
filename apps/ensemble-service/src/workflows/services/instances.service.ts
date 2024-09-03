@@ -5,7 +5,8 @@ import { WorkflowInstance } from '../schemas/instance.schema';
 import { CreateWorkflowInstanceDto } from '../dto/create-instance.dto';
 import { WorkflowsService } from './workflows.service';
 import { TriggerSnapshot } from '../entities/trigger-snapshot.entity';
-import { ADDRGETNETWORKPARAMS } from 'dns';
+import { Workflow } from '../entities/workflow.entity';
+import { Trigger } from '../entities/trigger.entity';
 
 @Injectable()
 export class WorkflowInstancesService {
@@ -17,8 +18,7 @@ export class WorkflowInstancesService {
   // Create a new workflow instance
   async create(createWorkflowInstanceDto: CreateWorkflowInstanceDto): Promise<WorkflowInstance> {
 
-    const workflow = await this.workflowsService.findByName(createWorkflowInstanceDto.workflowName);
-    console.log(workflow);
+    const workflow = await this.workflowsService.findOne(createWorkflowInstanceDto.workflowId);
     const newWorkflowInstance = new this.workflowInstanceModel({ ...createWorkflowInstanceDto, workflow: workflow._id,  });
 
 
@@ -40,23 +40,19 @@ export class WorkflowInstancesService {
     return this.workflowInstanceModel.findById(id).populate('workflow').exec();
   }
 
-  async findAndApply(id: string): Promise<object> {
-    console.log('id:', id);
+  async findAndApply(id: string): Promise<Workflow> {
     const instance = await this.findOne(id);
-    // console.log('instance', instance);
     if (!instance) {
       throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
     }
-    // console.log('instance', instance);
 
     const workflow = instance.workflow;
-    // console.log('params', instance.params);
     const appliedWorkflow = traverseAndInterpolate(workflow.toJSON(), instance.params);
     return appliedWorkflow;
   }
 
     // Update a workflow instance
-    async storeTriggerSnapsot(id: string, snapshot: TriggerSnapshot): Promise<boolean> {
+    async storeTriggerSnapsot(id: string, snapshot: TriggerSnapshot): Promise<TriggerSnapshot> {
       const instance = await this.findOne(id);
       if (!instance) {
         throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
@@ -71,8 +67,7 @@ export class WorkflowInstancesService {
       instance.triggerSnapshots.set(snapshot.name, snapshot);
       await instance.save();
 
-      const isUpdated = !oldSnapshot || oldSnapshot.data.toString() !== snapshot.data.toString();
-      return isUpdated;
+      return oldSnapshot;
     }
 
   // Update a workflow instance
@@ -92,10 +87,10 @@ function traverseAndInterpolate(obj: any, params: Map<string, string>): any {
   if (typeof obj === 'string') {
     // console.log('obj', obj);
     return obj.replace(/\$\w+/g, (match) => {
-      console.log('match', match);
+      // console.log('match', match);
       const key = match.slice(1); // Remove the $ sign
-      console.log('key', key);
-      console.log('key', params.get(key));
+      // console.log('key', key);
+      // console.log('key', params.get(key));
       // console.log(params[key] !== undefined ? params[key] : match)
       return params.has(key) ? params.get(key) : match;
     });
@@ -108,9 +103,11 @@ function traverseAndInterpolate(obj: any, params: Map<string, string>): any {
   if (typeof obj === 'object' && obj !== null) {
     const result: any = {};
     for (const [key, value] of Object.entries(obj)) {
-      // console.log('key', key);
-      // console.log('value', value);
-      result[key] = traverseAndInterpolate(value, params);
+      if (key === '_id') {
+        result[key] = value;
+      } else {
+        result[key] = traverseAndInterpolate(value, params);
+      }
     }
     return result;
   }
