@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { WorkflowInstance } from '../schemas/instance.schema';
@@ -6,7 +6,6 @@ import { CreateWorkflowInstanceDto } from '../dto/create-instance.dto';
 import { WorkflowsService } from './workflows.service';
 import { TriggerSnapshot } from '../entities/trigger-snapshot.entity';
 import { Workflow } from '../entities/workflow.entity';
-import { Trigger } from '../entities/trigger.entity';
 
 @Injectable()
 export class WorkflowInstancesService {
@@ -30,11 +29,6 @@ export class WorkflowInstancesService {
     return this.workflowInstanceModel.find().populate('workflow').exec();
   }
 
-    // Find all workflow instances
-  async findRunning(): Promise<WorkflowInstance[]> {
-    return this.workflowInstanceModel.find({ status: 'running' }).populate('workflow').exec();
-  }
-
   // Find a specific workflow instance by ID
   async findOne(id: string): Promise<WorkflowInstance> {
     return this.workflowInstanceModel.findById(id).populate('workflow').exec();
@@ -51,25 +45,57 @@ export class WorkflowInstancesService {
     return appliedWorkflow;
   }
 
-    // Update a workflow instance
-    async storeTriggerSnapsot(id: string, snapshot: TriggerSnapshot): Promise<TriggerSnapshot> {
-      const instance = await this.findOne(id);
-      if (!instance) {
-        throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
-      }
-      // console.log('instance.triggerSnapshots', instance.triggerSnapshots);
-
-      if (!instance.triggerSnapshots) {
-        instance.triggerSnapshots = new Map<string, TriggerSnapshot>();
-      }
-      console.log('instance.triggerSnapshots', instance.triggerSnapshots);
-      const oldSnapshot = instance.triggerSnapshots.get(snapshot.name);
-      instance.triggerSnapshots.set(snapshot.name, snapshot);
-      await instance.save();
-
-      return oldSnapshot;
+  // Update a workflow instance
+  async storeTriggerSnapsot(id: string, snapshot: TriggerSnapshot): Promise<TriggerSnapshot> {
+    const instance = await this.findOne(id);
+    if (!instance) {
+      throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
     }
+    // console.log('instance.triggerSnapshots', instance.triggerSnapshots);
 
+    if (!instance.triggerSnapshots) {
+      instance.triggerSnapshots = new Map<string, TriggerSnapshot>();
+    }
+    console.log('instance.triggerSnapshots', instance.triggerSnapshots);
+    const oldSnapshot = instance.triggerSnapshots.get(snapshot.name);
+    instance.triggerSnapshots.set(snapshot.name, snapshot);
+    await instance.save();
+
+    return oldSnapshot;
+  }
+  async start(id: string): Promise<WorkflowInstance> {
+    const instance = await this.findOne(id);
+    if (!instance) {
+      throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
+    }
+    if (instance.status === 'running') {
+      throw new BadRequestException(`WorkflowInstance with ID ${id} is already running`);
+    }
+    instance.status = 'running';
+    instance.startedAt = new Date();
+    await instance.save();
+    return instance;
+  }
+
+  async stop(id: string): Promise<WorkflowInstance> {
+    const instance = await this.findOne(id);
+    if (!instance) {
+      throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
+    }
+    if (instance.status !== 'running') {
+      throw new BadRequestException(`WorkflowInstance with ID ${id} is not running`);
+    }
+    instance.status = 'stopped';
+    instance.completedAt = new Date();
+    await instance.save();
+    return instance;
+  }
+
+  async findByStatus(status: string): Promise<WorkflowInstance[]> {
+    return this.workflowInstanceModel.find({ status }).populate('workflow').exec();
+
+    // return this.workflowInstanceRepository.find({ where: { status } });
+  }
   // Update a workflow instance
   async update(id: string, updateWorkflowInstanceDto: any) {
     return `This action updates a #${id} workflow instance`;

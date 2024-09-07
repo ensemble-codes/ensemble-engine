@@ -4,14 +4,17 @@ import { WorkflowsModule } from 'apps/ensemble-service/src/workflows/workflows.m
 import { BlockchainProviderModule } from '../blockchain-provider/blockchain-provider.module';
 import { AbiModule } from 'apps/ensemble-service/src/abi/abi.module';
 import { WalletsModule } from '../wallets/wallets.module';
+import { DexModule } from '../modules/dex/dex.module';
+import { TriggersService } from './triggers.service';
 @Module({
   imports: [
     WorkflowsModule,
     BlockchainProviderModule,
     AbiModule,
     WalletsModule,
+    DexModule,
   ],
-  providers: [WorkflowProcessorService]
+  providers: [WorkflowProcessorService, TriggersService]
 })
 
 export class WorkflowProcessorModule {}

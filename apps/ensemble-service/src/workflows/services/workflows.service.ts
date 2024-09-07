@@ -10,7 +10,6 @@ import { Workflow } from '../entities/workflow.entity'
 
 @Injectable()
 export class WorkflowsService {
-  // constructor(private readonly workflowRepository: WorkflowRepository) {}
 
   constructor(
     @InjectModel(Workflow.name) private readonly workflowModel: Model<Workflow>,

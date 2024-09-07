@@ -18,6 +18,10 @@ export class WorkflowInstancesController {
   findAll() {
     return this.workflowInstancesService.findAll();
   }
+  @Get('status/:status')
+  findByStatus(@Param('status') status: string) {
+    return this.workflowInstancesService.findByStatus(status);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -29,14 +33,14 @@ export class WorkflowInstancesController {
     console.log('id', id);
     return this.workflowInstancesService.findAndApply(id);
   }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWorkflowDto: UpdateWorkflowDto) {
-    return this.workflowInstancesService.update(id, updateWorkflowDto);
+  
+  @Post('start/:id')
+  async start(@Param('id') id) {
+    return this.workflowInstancesService.start(id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.workflowInstancesService.remove(id);
+  @Post('stop/:id')
+  async stop(@Param('id') id: string) {
+    return this.workflowInstancesService.stop(id);
   }
 }

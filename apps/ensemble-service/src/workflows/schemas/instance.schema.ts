@@ -15,7 +15,7 @@ export class WorkflowInstance extends Document {
   @Prop({ default: 0 })
   currentStepIndex: number;
 
-  @Prop({ type:  Map<string, TriggerSnapshot>, default: new Map<string, TriggerSnapshot>() })
+  @Prop({ type:  Map<string, TriggerSnapshot> })
   triggerSnapshots: Map<string, TriggerSnapshot>;
 
   @Prop({ type: Date })
