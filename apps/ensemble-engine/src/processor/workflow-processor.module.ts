@@ -6,6 +6,7 @@ import { AbiModule } from 'apps/ensemble-service/src/abi/abi.module';
 import { WalletsModule } from '../wallets/wallets.module';
 import { DexModule } from '../modules/dex/dex.module';
 import { TriggersService } from './triggers.service';
+import { ConditionsService } from './conditions.service';
 @Module({
   imports: [
     WorkflowsModule,
@@ -14,7 +15,7 @@ import { TriggersService } from './triggers.service';
     WalletsModule,
     DexModule,
   ],
-  providers: [WorkflowProcessorService, TriggersService]
+  providers: [TriggersService, WorkflowProcessorService, ConditionsService]
 })
 
 export class WorkflowProcessorModule {}

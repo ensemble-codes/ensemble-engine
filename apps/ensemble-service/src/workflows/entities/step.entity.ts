@@ -7,4 +7,5 @@ export class Step {
   method: string;
   arguments: [string];
   trigger: Trigger;
+  prerequisites: [ Trigger ];
 }

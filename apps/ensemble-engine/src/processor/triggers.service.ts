@@ -5,17 +5,18 @@ import { WorkflowInstance } from 'apps/ensemble-service/src/workflows/schemas/in
 import { WorkflowInstancesService } from 'apps/ensemble-service/src/workflows/services/instances.service';
 import { BlockchainProviderService } from '../blockchain-provider/blockchain-provider.service';
 
+@Injectable()
 export class TriggersService {
-    constructor(
-      private readonly workflowInstancesService: WorkflowInstancesService,
-      private readonly providerService: BlockchainProviderService,
-    ) { }
-
-
-
+  constructor(
+    private readonly workflowInstancesService: WorkflowInstancesService,
+    private readonly providerService: BlockchainProviderService,
+  ) {
+    console.log('TriggersService service created');
+  }
 
   async checkTrigger(trigger: Trigger, instance: WorkflowInstance) {
     console.log(`validating trigger: ${trigger.name}`);
+    console.log(this.workflowInstancesService)
     switch (trigger.type) {
       case 'contract':
         return this.checkContactTrigger(trigger, instance);
@@ -27,17 +28,27 @@ export class TriggersService {
     }
   }
 
-  async checkContactTrigger(trigger: Trigger, instance: WorkflowInstance) {
-    const contract = await this.providerService.loadContract(trigger.contract, instance.workflow.toJSON());
+  async fetchTriggerData(trigger: Trigger, instance: WorkflowInstance) {
+    const contract = await this.providerService.loadContract(trigger.contract, instance.workflow.contracts);
     console.log(trigger.method)
-    let value = await contract[trigger.method].staticCall()
+    console.log(contract[trigger.method])
+    console.log(trigger.methodArgs) 
+    let value = await contract[trigger.method].staticCall(...trigger.methodArgs)
+    return value
+  }
+
+  async checkContactTrigger(trigger: Trigger, instance: WorkflowInstance) {
+    // const contract = await this.providerService.loadContract(trigger.contract, instance.workflow.contracts);
+    // console.log(trigger.method)
+    // let value = await contract[trigger.method].staticCall()
+    const data = await this.fetchTriggerData(trigger, instance);
 
     const snapshot = {
       name: trigger.name,
-      data: value,
+      data,
       lastExecution: new Date()
     }
-
+    
     const oldSnapshot = await this.workflowInstancesService.storeTriggerSnapsot(instance.id, snapshot);
 
     const isUpdated = !oldSnapshot || oldSnapshot.data.toString() !== snapshot.data.toString();
@@ -76,7 +87,4 @@ export class TriggersService {
         return false;
     }
   }
-
-
-
 }

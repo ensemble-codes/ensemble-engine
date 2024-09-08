@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AbiService } from 'apps/ensemble-service/src/abi/abi.service';
+import { ContractEntity } from 'apps/ensemble-service/src/workflows/entities/contract.entity';
 import { Workflow } from 'apps/ensemble-service/src/workflows/entities/workflow.entity';
 import { ethers, JsonRpcProvider } from 'ethers';
 
@@ -30,13 +31,15 @@ export class BlockchainProviderService {
   }
 
 
-  async loadContract(contractName: string, workflow: Workflow) {
-    console.log(`loading contract ${contractName} for workflow ${workflow.name}`);
-    const { contracts } = workflow;
+  async loadContract(contractName: string, contracts: ContractEntity[]) {
+    console.log(`loading contract ${contractName}`);
+    // const { contracts } = workflow;
     const contractEntity = contracts.find(c => c.name === contractName);
     const contractABI = await this.abiService.findByName(contractEntity.abi)
     const provider = this.getProvider(contractEntity.network);
     const contract = new ethers.Contract(contractEntity.address, contractABI.abi, provider);
+    console.log(`contract ${contractName} loaded, address: ${contractEntity.address}`);
+
     return contract
   }
 }

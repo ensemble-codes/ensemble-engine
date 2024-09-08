@@ -7,20 +7,20 @@ import { ContractEntity } from '../entities/contract.entity'
 @Schema({ timestamps: true })
 export class Workflow extends Document {
   
-  @Prop()
+  @Prop({ type: String })
   name: string;
 
-  @Prop()
+  @Prop({ type: String })
   version: string;
 
-  @Prop()
+  @Prop({ type: WalletEntity })
   wallet: WalletEntity;
 
-  @Prop()
-  steps: [ Step ];
+  @Prop({ type: [Step] })
+  steps: Step[];
 
-  @Prop()
-  contracts: [ ContractEntity ];
+  @Prop({ type: [ContractEntity] })
+  contracts: ContractEntity[];
 }
 
 export const WorkflowSchema = SchemaFactory.createForClass(Workflow);
