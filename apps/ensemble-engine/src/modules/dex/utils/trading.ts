@@ -39,46 +39,36 @@ export type TokenTrade = Trade<Token, Token, TradeType>
 // import { FeeAmount } from '@uniswap/v3-sdk'
 import { CreateTradeDto } from '../dto/create-trade.dto'
 import { AbiCoder, ethers, Provider } from 'ethers'
+import { Dex } from '../entities'
 
 // Trading Functions
 
 export class CreateTrade {
 
-  constructor(private readonly provider: Provider) {}
+  constructor(private readonly provider: Provider, private readonly dex: Dex) {}
 
   async create(createTradeDto: CreateTradeDto) {
     const poolInfo = await getPoolInfo(createTradeDto, this.provider)
-    const chainId = 122
+    const { chainId } = createTradeDto.dex
 
     console.log('poolInfo', poolInfo)
-    
-    // const tokenIn = {
-    //   address: '0x0BE9e53fd7EDaC9F859882AfdDa116645287C629',
-    //   decimals: 18,
-    //   name: 'unknown',
-    //   symbol: 'unknown'
-    // }
-
-
+    console.log('createTradeDto.tokenIn.decimals', createTradeDto.tokenIn.decimals) 
+    console.log('createTradeDto.tokenIn.decimals', typeof createTradeDto.tokenIn.decimals)
     const TOKEN_IN = new Token(
       chainId,
-      createTradeDto.tokenInAddress,
-      18,
-      'WETH',
-      'Wrapped Ether'
+      createTradeDto.tokenIn.address,
+      createTradeDto.tokenIn.decimals,
+      createTradeDto.tokenIn.symbol,
+      createTradeDto.tokenIn.name
     )
     
     const TOKEN_OUT = new Token(
       chainId,
-      createTradeDto.tokenOutAddress,
-      6,
-      'USDC',
-      'USD//C'
+      createTradeDto.tokenOut.address,
+      createTradeDto.tokenOut.decimals,
+      createTradeDto.tokenOut.symbol,
+      createTradeDto.tokenOut.name
     )
-    // console.log(poolInfo.tick >= TickMath.MIN_TICK)
-    // console.log(poolInfo.tick <= TickMath.MAX_TICK)
-    // console.log(Number.isInteger(poolInfo.tick))
-    // console.log(!(poolInfo.tick >= TickMath.MIN_TICK && poolInfo.tick <= TickMath.MAX_TICK && Number.isInteger(poolInfo.tick)) ?  'ERRROR'  : void 0)
 
     const pool = new Pool(
       TOKEN_IN,
@@ -98,7 +88,6 @@ export class CreateTrade {
     console.log('swapRoute', swapRoute)
     const amountOut = await this.getOutputQuote(swapRoute, TOKEN_IN, createTradeDto.tokenInAmount)
     console.log('amountOut', amountOut)
-    console.log(amountOut.constructor.name)
     const uncheckedTrade = Trade.createUncheckedTrade({
       route: swapRoute,
       inputAmount: CurrencyAmount.fromRawAmount(
@@ -117,8 +106,8 @@ export class CreateTrade {
 
     const options: SwapOptions = {
       slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
-      deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
-      recipient: '0x42f090f0Bf7aA467b16BB75633F3F8160647A7f6',
+      // deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
+      recipient: createTradeDto.receiverAddress,
     }
 
     const methodParameters = SwapRouter.swapCallParameters([uncheckedTrade], options)
@@ -173,7 +162,7 @@ async getOutputQuote(route: Route<Currency, Currency>, tokenIn: Currency, amount
   if (!this.provider) {
     throw new Error('Provider required to get pool state')
   }
-  console.log('rawAmount',     CurrencyAmount.fromRawAmount(
+  console.log('rawAmount', CurrencyAmount.fromRawAmount(
     tokenIn,
     amountIn
   ).toFixed())
@@ -190,7 +179,7 @@ async getOutputQuote(route: Route<Currency, Currency>, tokenIn: Currency, amount
   )
 
   const quoteCallReturnData = await this.provider.call({
-    to: '0x10c8a73987069b366c2bea9c8070DCF2F3E73e9D',
+    to: this.dex.quoterAddress,
     data: calldata,
   })
 

@@ -1,20 +1,17 @@
 import { IsString, IsNumber } from 'class-validator';
+import { Dex, Token } from '../entities';
 
 export class CreateTradeDto {
   
-  @IsString()
-  readonly tokenInAddress: string;
+  readonly tokenIn: Token;
   
-  @IsString()
-  readonly tokenOutAddress: string;
+  readonly tokenOut: Token;
 
   @IsString()
   readonly tokenInAmount: string;
 
-  @IsNumber()
-  readonly tokenInDecimals: number;
+  readonly dex: Dex;
 
-  @IsString()
-  readonly poolFactoryAddress: string;
+  readonly receiverAddress: string;
 
 }

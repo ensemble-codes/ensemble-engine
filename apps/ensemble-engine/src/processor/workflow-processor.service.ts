@@ -64,9 +64,10 @@ export class WorkflowProcessorService {
     console.log(`Executing step ${step.name} for workflow with ID: ${workflow.name}`);
 
     let target, methodData, networkName
-    if (step.module === 'dca' && step.method === 'swap') {
+    if (step.module === 'dca') {
       console.log(`using module ${step.module} for method ${step.method}`);
-      const result = await this.dexService.swap();
+      const dexArguments: any = step.arguments;
+      const result = await this.dexService.swap(dexArguments);
       target = result[0]
       methodData = result[1]
       networkName = result[2]
@@ -86,10 +87,10 @@ export class WorkflowProcessorService {
       networkName = contract.network
     }
 
-
     const tx = {
       to: target,
       data: methodData,
+      gasLimit: 1000000
     };
 
     console.log(methodData)
@@ -131,7 +132,6 @@ export class WorkflowProcessorService {
 
   async checkPreconditions(step: Step, workflow: Workflow): Promise<boolean> {
     console.log('Checking preconditions for step:', step.name);
-    console.log('Preconditions:', step.prerequisites);
     const { contracts } = workflow
     for (const pre of step.prerequisites) {
       const data = await this.conditionsService.fetchCondition(pre, contracts);

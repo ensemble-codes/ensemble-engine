@@ -12,10 +12,6 @@ export class CreateWorkflowDto {
   @IsNotEmpty()
   wallet: WalletEntity;
 
-//   @IsString()
-//   @IsNotEmpty()
-//   trigger: string;
-
   @IsArray()
   @IsNotEmpty()
   steps: Step[];

@@ -4,10 +4,10 @@ import { CreateTradeDto } from '../dto/create-trade.dto'
 
 // import { SupportedChainId, Token } from '@uniswap/sdk-core'
 // import { SUPPORTED_CHAINS, Token } from '@uniswap/sdk-core'
-// import { FeeAmount, computePoolAddress } from '@uniswap/v3-sdk'
+import { FeeAmount, computePoolAddress } from '@uniswap/v3-sdk'
 
 import { SUPPORTED_CHAINS, Token } from '@voltage-finance/sdk-core'
-import { FeeAmount, computePoolAddress } from '@voltage-finance/v3-sdk'
+// import { FeeAmount, computePoolAddress } from '@voltage-finance/v3-sdk'
 import IUniswapV3PoolABI from '../abis/IUniswapV3Pool.abi.json'
 import IUniswapFactroyABI from '../abis/IUniswapV3Factory.abi.json'
 
@@ -25,43 +25,46 @@ import IUniswapFactroyABI from '../abis/IUniswapV3Factory.abi.json'
 // }
 
 export async function getPoolInfo(createTradeDto: CreateTradeDto, provider: Provider) {
-  const chainId = 122
-  const WETH_TOKEN = new Token(
+  const chainId = createTradeDto.dex.chainId
+
+  console.log(createTradeDto.tokenIn.decimals)
+  const TOKEN_IN = new Token(
     chainId,
-    createTradeDto.tokenInAddress,
-    18,
-    'WETH',
-    'Wrapped Ether'
+    createTradeDto.tokenIn.address,
+    createTradeDto.tokenIn.decimals,
+    createTradeDto.tokenIn.symbol,
+    createTradeDto.tokenIn.name
   )
   
-  const USDC_TOKEN = new Token(
+  const TOKEN_OUT = new Token(
     chainId,
-    createTradeDto.tokenOutAddress,
-    6,
-    'USDC',
-    'USD//C'
+    createTradeDto.tokenOut.address,
+    createTradeDto.tokenOut.decimals,
+    createTradeDto.tokenOut.symbol,
+    createTradeDto.tokenOut.name
   )
 
   let poolAddress
   if (chainId === 122) {
     console.log('chainId', chainId)
-    console.log('createTradeDto.poolFactoryAddress', createTradeDto.poolFactoryAddress)
-    const factoryContract = new ethers.Contract(createTradeDto.poolFactoryAddress, IUniswapFactroyABI, provider)
-    console.log(WETH_TOKEN.address, USDC_TOKEN.address, FeeAmount.MEDIUM)
-    poolAddress = await factoryContract.getPool(WETH_TOKEN.address, USDC_TOKEN.address, FeeAmount.MEDIUM)
+    console.log('factoryAddress', createTradeDto.dex.factoryAddress)
+    const factoryContract = new ethers.Contract(createTradeDto.dex.factoryAddress, IUniswapFactroyABI, provider)
+    // console.log(createTradeDto.tokenIn.address, createTradeDto.tokenOut.address, FeeAmount.MEDIUM)
+    poolAddress = await factoryContract.getPool(TOKEN_IN.address, TOKEN_OUT.address, FeeAmount.MEDIUM)
     console.log('poolAddress', poolAddress)
   
   } else {
+    console.log('using uniswap sdk')
     poolAddress = computePoolAddress({
-      factoryAddress: createTradeDto.poolFactoryAddress,
-      tokenA: WETH_TOKEN,
-      tokenB: USDC_TOKEN,
+      factoryAddress: createTradeDto.dex.factoryAddress,
+      tokenA: TOKEN_IN,
+      tokenB: TOKEN_OUT,
       fee: FeeAmount.MEDIUM,  
     })
   }
 
 
-  console.log('currentPoolAddress', poolAddress)
+  console.log('currentPoolAddress ', poolAddress)
 
   const poolContract = new ethers.Contract(
     poolAddress,

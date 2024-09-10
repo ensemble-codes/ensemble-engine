@@ -33,7 +33,9 @@ export class WorkflowsService {
   }
   
   update(id: string, updateWorkflowDto: UpdateWorkflowDto) {
-    return `This action updates a #${id} workflow`;
+    const newObject = this.workflowModel.findByIdAndUpdate(id, updateWorkflowDto).exec();
+    return newObject
+    // return `This action updates a #${id} workflow`;
   }
 
   remove(id: string) {

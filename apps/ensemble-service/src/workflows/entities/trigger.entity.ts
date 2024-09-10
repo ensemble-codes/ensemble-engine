@@ -7,7 +7,7 @@ export class Trigger {
   contract: string;
   event: string;
   method: string;
-  methodArgs: [string];
+  methodArgs: string[];
   interval: string;
   condition: Condition;
 }

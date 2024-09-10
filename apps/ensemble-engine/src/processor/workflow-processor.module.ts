@@ -15,7 +15,7 @@ import { ConditionsService } from './conditions.service';
     WalletsModule,
     DexModule,
   ],
-  providers: [TriggersService, WorkflowProcessorService, ConditionsService]
+  providers: [TriggersService, WorkflowProcessorService, ConditionsService],
 })
 
 export class WorkflowProcessorModule {}
