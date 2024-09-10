@@ -3,24 +3,21 @@ import { Interval } from '@nestjs/schedule';
 import { Workflow } from 'apps/ensemble-service/src/workflows/entities/workflow.entity';
 import { WorkflowInstancesService } from 'apps/ensemble-service/src/workflows/services/instances.service';
 import { BlockchainProviderService } from '../blockchain-provider/blockchain-provider.service';
-import { BaseWallet, Contract, Provider, SigningKey } from 'ethers';
-import { WalletsService } from '../wallets/wallets.service';
 import { Step } from 'apps/ensemble-service/src/workflows/entities/step.entity';
 import { DexService } from '../modules/dex/dex.service';
 import { TriggersService } from './triggers.service';
 import { WorkflowInstance } from 'apps/ensemble-service/src/workflows/schemas/instance.schema';
 import { ConditionsService } from './conditions.service';
-import { TriggerSnapshot } from '../../../ensemble-service/src/workflows/entities/trigger-snapshot.entity';
 import { Trigger } from 'apps/ensemble-service/src/workflows/entities/trigger.entity';
-import { ContractEntity } from 'apps/ensemble-service/src/workflows/entities/contract.entity';
+import { SignersService } from '../blockchain-provider/signers.service';
   
 @Injectable()
 export class WorkflowProcessorService {
 
   constructor(
     private readonly workflowInstancesService: WorkflowInstancesService,
-    private readonly walletsService: WalletsService,
     private readonly providerService: BlockchainProviderService,
+    private readonly signersService: SignersService,
     private readonly dexService: DexService,
     private readonly triggerService: TriggersService,
     private readonly conditionsService: ConditionsService,
@@ -83,7 +80,7 @@ export class WorkflowProcessorService {
       console.log(`calling method ${methodName} with args ${JSON.stringify(methodArgs)}`);
   
       methodData = contract.interface.encodeFunctionData(methodName, methodArgs);
-      target = contract.target
+      target = contract.address
       networkName = contract.network
     }
 
@@ -96,7 +93,7 @@ export class WorkflowProcessorService {
     console.log(methodData)
 
     const provider = this.providerService.getProvider(networkName);
-    const wallet = await this.getSignerWallet(workflow, provider);
+    const wallet = await this.signersService.getSignerWallet(workflow, provider);
 
     // Send the signed transaction
     try {
@@ -112,8 +109,8 @@ export class WorkflowProcessorService {
     }
   }
 
-  async sendTransaction(tx: any, workflow: Workflow, provider: Provider) {
-    const wallet = await this.getSignerWallet(workflow, provider);
+  async sendTransaction(tx: any, workflow: Workflow, provider: any) {
+    const wallet = await this.signersService.getSignerWallet(workflow, provider);
 
     // Send the signed transaction
     try {
@@ -148,6 +145,16 @@ export class WorkflowProcessorService {
         return true
       }
     }
+
+    // if (step.module === 'dca') {
+    //   const txRequest = {
+    //     to: target,
+    //     value: 0,
+    //     data: methodData,
+    //     gasLimit: 1000000
+    //   };
+
+    // }
     return true;
   }
 
@@ -162,40 +169,37 @@ export class WorkflowProcessorService {
       if (pre.methodArgs.length < 2) {
         console.error('Insufficient arguments for method:', methodName);
         return; // Exit if not enough arguments
-      } else {
-        console.log(`Not supported : ${pre.method}`);
       }
-    
+
       const methodArgs = [pre.methodArgs[1], pre.condition.value];
       console.log(`calling method ${methodName} with args ${JSON.stringify(methodArgs)}`);
 
       const methodData = contract.interface.encodeFunctionData(methodName, methodArgs);
-      const target = contract.target
+      const target = contract.address
       // networkName = contract.network
-      console.log(contract.network)
-      const tx = {
+      console.log(contract.network);
+      const txRequest = {
         to: target,
+        value: 0,
         data: methodData,
-        networkName: contract.network
+        gasLimit: 1000000
       };
 
-      await this.sendTransaction(tx, workflow, contract.runner.provider);
+    //   const tx = {
+    //     to: "0xRecipientAddress", // Replace with the recipient's address
+    //     value: ethers.utils.parseEther("0.1"), // Amount of ETH to send (0.1 ETH in this case)
+    //     gasLimit: 21000, // Standard gas limit for a simple ETH transfer
+    //     gasPrice: await provider.getGasPrice(), // Get current gas price from the network
+    //     nonce: await provider.getTransactionCount(wallet.address, "latest"), // Get the nonce for the wallet
+    // };
+
+      this.sendTransaction(txRequest, workflow, contract.provider);
+      // const txResponse = await contract.provider.sendTransaction(txRequest);
+      // await txResponse.wait();
     }
 
 
 
 
   }
-
-  // async checkPrecondition(pre: Prerequisite) {
-
-
-  // }
-
-  async getSignerWallet(workflow: Workflow, provider: any) {
-    const wallet = await this.walletsService.getWalletByWorkflow(workflow);
-    const signer = new BaseWallet(new SigningKey(wallet.privateKey), provider);
-    return signer;
-  }
-
 }

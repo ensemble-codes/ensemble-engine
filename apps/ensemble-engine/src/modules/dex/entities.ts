@@ -4,6 +4,8 @@ export class DexDefaults {
   factoryAddress: string;
   routerAddress: string;
   quoterAddress?: string;
+  universalRouterAddress?: string;
+  permit2Address?: string;
   network: string;
 }
 

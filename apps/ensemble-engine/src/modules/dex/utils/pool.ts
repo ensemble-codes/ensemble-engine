@@ -1,5 +1,5 @@
 // import IUniswapV3PoolABI from '@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json'
-import { ethers, Provider } from 'ethers'
+import { ethers, providers } from 'ethers'
 import { CreateTradeDto } from '../dto/create-trade.dto'
 
 // import { SupportedChainId, Token } from '@uniswap/sdk-core'
@@ -24,7 +24,7 @@ import IUniswapFactroyABI from '../abis/IUniswapV3Factory.abi.json'
 //   tick: number
 // }
 
-export async function getPoolInfo(createTradeDto: CreateTradeDto, provider: Provider) {
+export async function getPoolInfo(createTradeDto: CreateTradeDto, provider: providers.Provider) {
   const chainId = createTradeDto.dex.chainId
 
   console.log(createTradeDto.tokenIn.decimals)

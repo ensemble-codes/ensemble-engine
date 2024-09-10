@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { AbiService } from 'apps/ensemble-service/src/abi/abi.service';
 import { ContractEntity } from 'apps/ensemble-service/src/workflows/entities/contract.entity';
-import { ethers, JsonRpcProvider } from 'ethers';
+import { ethers } from 'ethers';
 import { getNetwork } from './networks';
 
 @Injectable()
 export class BlockchainProviderService {
-  private providers: { [networkName: string]: JsonRpcProvider } = {};
+  private providers: { [networkName: string]: ethers.providers.JsonRpcProvider } = {};
 
   constructor(
     private readonly abiService: AbiService,
@@ -19,7 +19,7 @@ export class BlockchainProviderService {
     }
     for (const [network, url] of Object.entries(networkUrls)) {
       if (url) {
-        this.providers[network] = new JsonRpcProvider(url);
+        this.providers[network] = new ethers.providers.JsonRpcProvider(url);
         console.log(`Initialized provider for ${network} with url endpoint: ${url}`);
       } else {
         console.warn(`RPC URL for ${network} is not set`);
@@ -28,7 +28,7 @@ export class BlockchainProviderService {
   }
 
 
-  getProvider(networkName: string): JsonRpcProvider {
+  getProvider(networkName: string): ethers.providers.JsonRpcProvider {
     return this.providers[networkName];
   }
 
@@ -40,7 +40,6 @@ export class BlockchainProviderService {
 
   async loadContract(contractName: string, contracts: ContractEntity[]) {
     console.log(`loading contract ${contractName}`);
-    // const { contracts } = workflow;
     const contractEntity = contracts.find(c => c.name === contractName);
     const contractABI = await this.abiService.findByName(contractEntity.abi)
     const provider = this.getProvider(contractEntity.network);

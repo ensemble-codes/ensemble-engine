@@ -4,12 +4,14 @@ import { Trigger } from 'apps/ensemble-service/src/workflows/entities/trigger.en
 import { WorkflowInstance } from 'apps/ensemble-service/src/workflows/schemas/instance.schema';
 import { WorkflowInstancesService } from 'apps/ensemble-service/src/workflows/services/instances.service';
 import { BlockchainProviderService } from '../blockchain-provider/blockchain-provider.service';
+import { ConditionsService } from './conditions.service';
 
 @Injectable()
 export class TriggersService {
   constructor(
     private readonly workflowInstancesService: WorkflowInstancesService,
     private readonly providerService: BlockchainProviderService,
+    private readonly conditionsService: ConditionsService,
   ) {
     console.log('TriggersService service created');
   }
@@ -28,20 +30,18 @@ export class TriggersService {
     }
   }
 
-  async fetchTriggerData(trigger: Trigger, instance: WorkflowInstance) {
-    const contract = await this.providerService.loadContract(trigger.contract, instance.workflow.contracts);
-    console.log(trigger.method)
-    console.log(contract[trigger.method])
-    console.log(trigger.methodArgs) 
-    let value = await contract[trigger.method].staticCall(...trigger.methodArgs)
-    return value
-  }
+  // async fetchTriggerData(trigger: Trigger, instance: WorkflowInstance) {
+  //   const contract = await this.providerService.loadContract(trigger.contract, instance.workflow.contracts);
+  //   console.log(trigger.method)
+  //   console.log(contract[trigger.method])
+  //   console.log(trigger.methodArgs) 
+  //   let value = await contract[trigger.method].staticCall(...trigger.methodArgs)
+  //   return value
+  // }
 
   async checkContactTrigger(trigger: Trigger, instance: WorkflowInstance) {
-    // const contract = await this.providerService.loadContract(trigger.contract, instance.workflow.contracts);
-    // console.log(trigger.method)
-    // let value = await contract[trigger.method].staticCall()
-    const data = await this.fetchTriggerData(trigger, instance);
+    const data = await this.conditionsService.fetchCondition(trigger, instance.workflow.contracts);
+    // fetchTriggerData(trigger, instance);
 
     const snapshot = {
       name: trigger.name,

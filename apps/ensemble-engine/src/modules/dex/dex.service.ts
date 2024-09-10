@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ethers, JsonRpcProvider } from 'ethers';
 import { CreateTradeDto } from './dto/create-trade.dto';
 import { CreateTrade } from './utils/trading';
 import { BlockchainProviderService } from '../../blockchain-provider/blockchain-provider.service';
-import { Workflow } from '../../../../ensemble-service/src/workflows/schemas/workflow.schema';
-import { Step } from 'apps/ensemble-service/src/workflows/entities/step.entity';
 import { Dex, DexArguments, DexDefaults } from './entities';
-import {getDexDefaults } from './dexes';
+import {getDexDefaults } from './constants/dexes';
 @Injectable()
 export class DexService {
 
@@ -35,7 +32,7 @@ export class DexService {
     const createTrade = new CreateTrade(provider, dexData);
     const methodParams = await createTrade.create(createTradeDto);
     const methodData = methodParams.calldata;
-    const target = dexData.routerAddress;
+    const target = dexData.universalRouterAddress || dexData.routerAddress;
     return [target, methodData, dexData.network]
   }
 

@@ -25,13 +25,18 @@ export class ConditionsService {
   }
 
   async fetchCondition(trigger: Trigger, contracts: ContractEntity[]) {
+    console.log(`fetching condition for trigger ${trigger.name}`);
     const contract = await this.providerService.loadContract(trigger.contract, contracts);
-    // console.log(trigger.method)
-    // console.log(contract[trigger.method])
-    // console.log(trigger.methodArgs) 
-    let value = await contract[trigger.method].staticCall(...trigger.methodArgs)
-    return value
+    console.debug(`condition trigger ${trigger.name}. trigger method: ${trigger.method}, args: ${trigger.methodArgs}`);
+    console.debug(contract[trigger.method]);
+    const callMethod = contract[trigger.method];
+    console.debug(`call method: ${callMethod}`);
+    // let value = await callMethod(...trigger.methodArgs);
+    const value = await contract.allowance(...trigger.methodArgs);
+    console.log(`condition for trigger ${trigger.name} fetched. Value: ${value}`);
+    return value;
   }
+
 
   async checkCondition(condition: Condition, data: any) {
     console.log(`Checking condition ${condition.op} with value ${condition.value} on data ${data}`);
