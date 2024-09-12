@@ -7,20 +7,22 @@ import { getNetwork } from './networks';
 @Injectable()
 export class BlockchainProviderService {
   private providers: { [networkName: string]: ethers.providers.JsonRpcProvider } = {};
+  
+  private networkUrls = {
+    fuse: process.env.PROVIDER_URL_FUSE,
+    sepolia: process.env.PROVIDER_URL_SEPOLIA,
+    base_sepolia: process.env.PROVIDER_URL_BASE_SEPOLIA,
+    op_sepolia: process.env.PROVIDER_URL_OP_SEPOLIA,
+  }
 
   constructor(
     private readonly abiService: AbiService,
   ) {
-    const networkUrls = {
-      fuse: process.env.PROVIDER_URL_FUSE,
-      sepolia: process.env.PROVIDER_URL_SEPOLIA,
-      base_sepolia: process.env.PROVIDER_URL_BASE_SEPOLIA,
-      op_sepolia: process.env.PROVIDER_URL_OP_SEPOLIA,
-    }
-    for (const [network, url] of Object.entries(networkUrls)) {
+    for (const [network, url] of Object.entries(this.networkUrls)) {
       if (url) {
+        console.log(`Initializing provider for ${network}.`);
         this.providers[network] = new ethers.providers.JsonRpcProvider(url);
-        console.log(`Initialized provider for ${network} with url endpoint: ${url}`);
+        console.log(`Initialized provider for ${network} with url endpoint: ${url}.`);
       } else {
         console.warn(`RPC URL for ${network} is not set`);
       }
@@ -29,6 +31,9 @@ export class BlockchainProviderService {
 
 
   getProvider(networkName: string): ethers.providers.JsonRpcProvider {
+    if (!this.networkUrls[networkName]) {
+      throw new Error(`RPC URL for ${networkName} is not set`);
+    }
     return this.providers[networkName];
   }
 
