@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
-import { Workflow } from 'apps/ensemble-service/src/workflows/entities/workflow.entity';
-import { WorkflowInstancesService } from 'apps/ensemble-service/src/workflows/services/instances.service';
+import { Workflow } from 'libs/shared/src/workflows/entities/workflow.entity';
+import { WorkflowInstancesService } from 'libs/shared/src/workflows/services/instances.service';
 import { BlockchainProviderService } from '../blockchain-provider/blockchain-provider.service';
-import { Step } from 'apps/ensemble-service/src/workflows/entities/step.entity';
+import { Step } from 'libs/shared/src/workflows/entities/step.entity';
 import { DexService } from '../modules/dex/dex.service';
 import { TriggersService } from './triggers.service';
-import { WorkflowInstance } from 'apps/ensemble-service/src/workflows/schemas/instance.schema';
+import { WorkflowInstance } from 'libs/shared/src/workflows/schemas/instance.schema';
 import { ConditionsService } from './conditions.service';
-import { Trigger } from 'apps/ensemble-service/src/workflows/entities/trigger.entity';
+import { Trigger } from 'libs/shared/src/workflows/entities/trigger.entity';
 import { SignersService } from '../blockchain-provider/signers.service';
   
 @Injectable()

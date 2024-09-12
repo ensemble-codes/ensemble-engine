@@ -1,16 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { TriggerSnapshot } from 'apps/ensemble-service/src/workflows/entities/trigger-snapshot.entity';
-import { Trigger } from 'apps/ensemble-service/src/workflows/entities/trigger.entity';
-import { WorkflowInstance } from 'apps/ensemble-service/src/workflows/schemas/instance.schema';
-import { WorkflowInstancesService } from 'apps/ensemble-service/src/workflows/services/instances.service';
-import { BlockchainProviderService } from '../blockchain-provider/blockchain-provider.service';
+import { TriggerSnapshot } from 'libs/shared/src/workflows/entities/trigger-snapshot.entity';
+import { Trigger } from 'libs/shared/src/workflows/entities/trigger.entity';
+import { WorkflowInstance } from 'libs/shared/src/workflows/schemas/instance.schema';
+import { WorkflowInstancesService } from 'libs/shared/src/workflows/services/instances.service';
 import { ConditionsService } from './conditions.service';
 
 @Injectable()
 export class TriggersService {
   constructor(
     private readonly workflowInstancesService: WorkflowInstancesService,
-    private readonly providerService: BlockchainProviderService,
     private readonly conditionsService: ConditionsService,
   ) {
     console.log('TriggersService service created');
@@ -29,7 +27,7 @@ export class TriggersService {
         return false;
     }
   }
-  
+
   async checkContactTrigger(trigger: Trigger, instance: WorkflowInstance) {
     const data = await this.conditionsService.fetchCondition(trigger, instance.workflow.contracts);
     // fetchTriggerData(trigger, instance);

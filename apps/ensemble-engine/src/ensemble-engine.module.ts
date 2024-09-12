@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { WorkflowProcessorModule } from './processor/workflow-processor.module';
+import { WorkflowProcessorModule } from './workflows/workflow-processor.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
