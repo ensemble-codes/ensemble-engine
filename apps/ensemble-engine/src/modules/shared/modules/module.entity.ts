@@ -1,6 +1,6 @@
-import { ContractEntity } from 'apps/ensemble-service/src/workflows/entities/contract.entity';
-import { Step } from 'apps/ensemble-service/src/workflows/entities/step.entity'; 
-import { WalletEntity } from 'apps/ensemble-service/src/workflows/entities/wallet.entity';
+import { ContractEntity } from 'libs/shared/src/workflows/entities/contract.entity';
+import { Step } from 'libs/shared/src/workflows/entities/step.entity'; 
+import { WalletEntity } from 'libs/shared/src/workflows/entities/wallet.entity';
 
 export class ModuleEntity {
   name: string;
