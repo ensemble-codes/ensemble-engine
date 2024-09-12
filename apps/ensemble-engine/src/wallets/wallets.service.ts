@@ -4,9 +4,7 @@ import { Model } from 'mongoose';
 import { Wallet } from './schemas/wallet.schema';
 import { Wallet as EthersWallet } from 'ethers';
 import { group } from 'console';
-import { Workflow } from 'apps/ensemble-service/src/workflows/entities/workflow.entity';
-// import { Step } from 'src/workflows/entities/step.entity';
-// import { Workflow } from 'src/workflows/entities/workflow.entity';
+import { Workflow } from 'libs/shared/src/workflows/entities/workflow.entity';
 
 const generateId = () =>  Math.random().toString(16).slice(2)
 

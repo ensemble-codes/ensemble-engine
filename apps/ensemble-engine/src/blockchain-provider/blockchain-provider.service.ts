@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AbiService } from 'apps/ensemble-service/src/abi/abi.service';
-import { ContractEntity } from 'apps/ensemble-service/src/workflows/entities/contract.entity';
+import { ContractEntity } from 'libs/shared/src/workflows/entities/contract.entity';
 import { ethers } from 'ethers';
 import { getNetwork } from './networks';
 
