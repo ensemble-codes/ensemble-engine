@@ -29,16 +29,7 @@ export class TriggersService {
         return false;
     }
   }
-
-  // async fetchTriggerData(trigger: Trigger, instance: WorkflowInstance) {
-  //   const contract = await this.providerService.loadContract(trigger.contract, instance.workflow.contracts);
-  //   console.log(trigger.method)
-  //   console.log(contract[trigger.method])
-  //   console.log(trigger.methodArgs) 
-  //   let value = await contract[trigger.method].staticCall(...trigger.methodArgs)
-  //   return value
-  // }
-
+  
   async checkContactTrigger(trigger: Trigger, instance: WorkflowInstance) {
     const data = await this.conditionsService.fetchCondition(trigger, instance.workflow.contracts);
     // fetchTriggerData(trigger, instance);
