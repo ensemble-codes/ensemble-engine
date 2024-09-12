@@ -4,6 +4,7 @@
   type: module
   steps:
     - name: approve
+      precondition: true
       contract: SellToken
       method: approve
       methodArgs:
