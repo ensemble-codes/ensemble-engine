@@ -7,6 +7,6 @@ export class ModuleEntity {
   version: string;
   wallet: WalletEntity;
   trigger: string;
-  steps: [ Step ];
+  preconditions: [ Step ];
   contracts: [ ContractEntity ];
 }

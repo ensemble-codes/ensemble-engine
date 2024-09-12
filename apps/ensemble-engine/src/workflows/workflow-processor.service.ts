@@ -145,16 +145,6 @@ export class WorkflowProcessorService {
         return true
       }
     }
-
-    // if (step.module === 'dca') {
-    //   const txRequest = {
-    //     to: target,
-    //     value: 0,
-    //     data: methodData,
-    //     gasLimit: 1000000
-    //   };
-
-    // }
     return true;
   }
 
