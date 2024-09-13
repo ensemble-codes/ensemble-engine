@@ -1,25 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { BlockchainProviderService } from '../blockchain-provider/blockchain-provider.service';
-import { Trigger } from 'apps/ensemble-service/src/workflows/entities/trigger.entity';
-import { ContractEntity } from 'apps/ensemble-service/src/workflows/entities/contract.entity';
-import { Condition } from 'apps/ensemble-service/src/workflows/entities/condition.entity';
-// import { Condition } from 'mongoose';
-// import { TriggerSnapshot } from 'apps/ensemble-service/src/workflows/entities/trigger-snapshot.entity';
-// import { Trigger } from 'apps/ensemble-service/src/workflows/entities/trigger.entity';
-// import { WorkflowInstance } from 'apps/ensemble-service/src/workflows/schemas/instance.schema';
-// import { WorkflowInstancesService } from 'apps/ensemble-service/src/workflows/services/instances.service';
-// import { BlockchainProviderService } from '../blockchain-provider/blockchain-provider.service';
+import { Trigger } from 'libs/shared/src/workflows/entities/trigger.entity';
+import { ContractEntity } from 'libs/shared/src/workflows/entities/contract.entity';
+import { Condition } from 'libs/shared/src/workflows/entities/condition.entity';
 
 @Injectable()
 export class ConditionsService {
 
 
   constructor(
-    // private readonly workflowInstancesService: WorkflowInstancesService,
-    // private readonly walletsService: WalletsService,
     private readonly providerService: BlockchainProviderService,
-    // private readonly dexService: DexService,
-    // private readonly triggerService: TriggersService,
   ) {
     console.log('WorkflowProcessor V2 service created');
   }

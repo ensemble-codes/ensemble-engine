@@ -36,6 +36,16 @@ export class DexService {
     return [target, methodData, dexData.network]
   }
 
+  async process(method: string, dexArguments: DexArguments) {
+    switch (method) {
+      case 'swap':
+        return this.swap(dexArguments)
+      default:
+        console.error(`Unknown method: ${method}`);
+        return false;
+    }
+  }
+
   getDexData(dexName: string, dexNetwork: string): Dex {
     const dexDefaults : DexDefaults = getDexDefaults(dexName, dexNetwork)
     return {

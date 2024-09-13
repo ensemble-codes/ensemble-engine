@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Wallet } from 'ethers';
-import { WalletsService } from '../wallets/wallets.service';
-import { Workflow } from 'apps/ensemble-service/src/workflows/entities/workflow.entity';
+import { WalletsService } from '../../../../libs/shared/src/wallets/wallets.service';
+import { Workflow } from 'libs/shared/src/workflows/entities/workflow.entity';
 
 @Injectable()
 export class SignersService {

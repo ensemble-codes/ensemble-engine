@@ -1,7 +1,7 @@
 import { IsString, IsObject, IsArray, IsNotEmpty, IsOptional } from 'class-validator';
-import { WalletEntity } from '../entities/wallet.entity';
-import { Step } from '../entities/step.entity';
-import { ContractEntity } from '../entities/contract.entity';
+import { WalletEntity } from 'libs/shared/src/workflows/entities/wallet.entity';
+import { Step } from 'libs/shared/src/workflows/entities/step.entity';
+import { ContractEntity } from 'libs/shared/src/workflows/entities/contract.entity';
 
 export class CreateWorkflowDto {
   @IsString()

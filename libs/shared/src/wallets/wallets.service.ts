@@ -4,9 +4,7 @@ import { Model } from 'mongoose';
 import { Wallet } from './schemas/wallet.schema';
 import { Wallet as EthersWallet } from 'ethers';
 import { group } from 'console';
-import { Workflow } from 'apps/ensemble-service/src/workflows/entities/workflow.entity';
-// import { Step } from 'src/workflows/entities/step.entity';
-// import { Workflow } from 'src/workflows/entities/workflow.entity';
+import { Workflow } from 'libs/shared/src/workflows/entities/workflow.entity';
 
 const generateId = () =>  Math.random().toString(16).slice(2)
 
@@ -23,20 +21,17 @@ export class WalletsService {
    * @param {number} numberOfWallets - The number of wallets to create.
    * @returns {string} The identifier for the group of created wallets. This identifier can be used to retrieve the group.
    */
-  createWallets(numberOfWallets: number) {
+  create() {
     const groupId = generateId()
-    for (let i = 0; i < numberOfWallets; i++) {
-      const wallet = EthersWallet.createRandom()
-      console.log(`generating wallet with address ${wallet.address}`)
-      const newWallet = new this.walletModel({
-        groupId,
-        address: wallet.address,
-        privateKey: wallet.privateKey
-      });
-      // TODO: Maybe add await here
-      newWallet.save();
-    }
-    return groupId
+    const wallet = EthersWallet.createRandom()
+    console.log(`generating wallet with address ${wallet.address}`)
+    const newWallet = new this.walletModel({
+      groupId,
+      address: wallet.address,
+      privateKey: wallet.privateKey
+    });
+    // TODO: Maybe add await here
+    return newWallet.save();
   }
 
   // async loadWallet(step: Step, workflow: Workflow): Promise<Wallet> {
@@ -71,7 +66,7 @@ export class WalletsService {
   async getWalletByWorkflow(workflow: Workflow): Promise<Wallet> {
     console.log(`getting wallet by workflow  ${workflow.name}`)
     const { address } = workflow.wallet
-    return this.getWallet(address);
+    return this.findOne(address);
     // const wallets = await this.getWalletsByGroup(groupId);
     // if (wallets.length === 0) {
     //   throw new NotFoundException(`No wallets found for group ${groupId}`);
@@ -86,7 +81,7 @@ export class WalletsService {
    * @returns {Promise<Wallet>} The wallet document if found.
    * @throws {NotFoundException} Throws if no wallet is found for the given address.
    */
-    async getWallet(address: string): Promise<Wallet> {
+    async findOne(address: string): Promise<Wallet> {
       const wallet = await this.walletModel.findOne({ address }).exec();
       if (!wallet) {
           throw new NotFoundException(`Wallet with address ${address} not found.`);

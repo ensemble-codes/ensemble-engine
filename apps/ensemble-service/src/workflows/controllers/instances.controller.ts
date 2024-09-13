@@ -1,8 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { WorkflowsService } from '../services/workflows.service';
-import { UpdateWorkflowDto } from '../dto/update-workflow.dto';
-import { WorkflowInstancesService } from '../services/instances.service';
-import { CreateWorkflowInstanceDto } from '../dto/create-instance.dto';
+import { WorkflowsService } from 'libs/shared/src/workflows/services/workflows.service';
+import { WorkflowInstancesService } from 'libs/shared/src/workflows/services/instances.service';
+import { CreateWorkflowInstanceDto } from 'libs/shared/src/workflows/dto/create-instance.dto';
 
 @Controller('workflows/instances')
 export class WorkflowInstancesController {

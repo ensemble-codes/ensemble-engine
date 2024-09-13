@@ -1,0 +1,22 @@
+- name: dex
+  version: 0.1.0
+  description: "Dex module"
+  type: module
+  steps:
+    - name: approve
+      precondition: true
+      contract: SellToken
+      method: approve
+      methodArgs:
+        - $DEX_ADDRESS
+        - $ALLOWANCE_AMOUNT
+      trigger:
+        name: allowance
+        contract: SellToken
+        method: allowance
+        methodArgs:
+          - $WORKFLOW_WALLET
+          - $DEX_ADDRESS
+        condition:
+          op: lessThan
+          value: $ALLOWANCE_AMOUNT
