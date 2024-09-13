@@ -13,6 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/ensemble-service/main",
     "start:engine": "nest start ensemble-engine",
+    "start:service": "nest start",
     "start:engine:dev": "nest start ensemble-engine --watch",
     "start:engine:prod": "node dist/apps/ensemble-engine/main",
     "start:service:dev": "nest start --watch",
