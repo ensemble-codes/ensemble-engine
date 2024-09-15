@@ -56,25 +56,6 @@ export class WalletsService {
       return wallets;
     }
 
-
-    /**
-   * Picks a random wallet from a specified group.
-   * @param {string} groupId - The identifier of the wallet group.
-   * @returns {Promise<Wallet>} A randomly selected wallet from the group.
-   * @throws {NotFoundException} Throws if no group is found for the given ID.
-   */
-  async getWalletByWorkflow(workflow: Workflow): Promise<Wallet> {
-    console.log(`getting wallet by workflow  ${workflow.name}`)
-    const { address } = workflow.wallet
-    return this.findOne(address);
-    // const wallets = await this.getWalletsByGroup(groupId);
-    // if (wallets.length === 0) {
-    //   throw new NotFoundException(`No wallets found for group ${groupId}`);
-    // }
-    // const randomIndex = Math.floor(Math.random() * wallets.length);
-    // return wallets[randomIndex];
-  }
-
   /**
    * Retrieves a wallet by its address.
    * @param {string} address - The Ethereum address of the wallet.
