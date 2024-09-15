@@ -16,7 +16,6 @@ export class WorkflowsService {
   ) {}
 
   create(createWorkflowDto: CreateWorkflowDto) {
-    console.log(createWorkflowDto)
     return this.workflowModel.create(createWorkflowDto);
   }
 

@@ -63,6 +63,7 @@ export class WorkflowInstancesService {
 
     return oldSnapshot;
   }
+
   async start(id: string): Promise<WorkflowInstance> {
     const instance = await this.findOne(id);
     if (!instance) {

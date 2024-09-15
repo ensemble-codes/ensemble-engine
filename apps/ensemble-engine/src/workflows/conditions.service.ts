@@ -18,10 +18,8 @@ export class ConditionsService {
     console.log(`fetching condition for trigger ${trigger.name}`);
     const contract = await this.providerService.loadContract(trigger.contract, contracts);
     console.debug(`condition trigger ${trigger.name}. trigger method: ${trigger.method}, args: ${trigger.methodArgs}`);
-    console.debug(contract[trigger.method]);
     const callMethod = contract[trigger.method];
     console.debug(`call method: ${callMethod}`);
-    // let value = await callMethod(...trigger.methodArgs);
     const value = await contract.allowance(...trigger.methodArgs);
     console.log(`condition for trigger ${trigger.name} fetched. Value: ${value}`);
     return value;

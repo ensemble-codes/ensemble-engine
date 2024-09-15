@@ -4,6 +4,7 @@ import { Trigger } from 'libs/shared/src/workflows/entities/trigger.entity';
 import { WorkflowInstance } from 'libs/shared/src/workflows/schemas/instance.schema';
 import { WorkflowInstancesService } from 'libs/shared/src/workflows/services/instances.service';
 import { ConditionsService } from './conditions.service';
+import { WorkflowInstanceEntity } from 'libs/shared/src/workflows/entities/instance.entity';
 
 @Injectable()
 export class TriggersService {
@@ -14,9 +15,8 @@ export class TriggersService {
     console.log('TriggersService service created');
   }
 
-  async checkTrigger(trigger: Trigger, instance: WorkflowInstance) {
+  async checkTrigger(trigger: Trigger, instance: WorkflowInstanceEntity) {
     console.log(`validating trigger: ${trigger.name}`);
-    console.log(this.workflowInstancesService)
     switch (trigger.type) {
       case 'contract':
         return this.checkContactTrigger(trigger, instance);
@@ -28,7 +28,7 @@ export class TriggersService {
     }
   }
 
-  async checkContactTrigger(trigger: Trigger, instance: WorkflowInstance) {
+  async checkContactTrigger(trigger: Trigger, instance: WorkflowInstanceEntity) {
     const data = await this.conditionsService.fetchCondition(trigger, instance.workflow.contracts);
     // fetchTriggerData(trigger, instance);
 
@@ -46,7 +46,7 @@ export class TriggersService {
     return isUpdated
   }
 
-  async checkPeriodicTrigger(trigger: Trigger, instance: WorkflowInstance) {
+  async checkPeriodicTrigger(trigger: Trigger, instance: WorkflowInstanceEntity) {
     const now = new Date();
     const snapshot = {
       name: trigger.name,

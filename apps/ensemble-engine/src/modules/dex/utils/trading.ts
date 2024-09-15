@@ -20,25 +20,10 @@ import {
   UniswapTrade,
   SwapRouter
 } from "@uniswap/universal-router-sdk";
-
-// // import {
-// //   ERC20_ABI,
-// //   QUOTER_CONTRACT_ADDRESS,
-// //   SWAP_ROUTER_ADDRESS,
-// //   TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER,
-// // } from './constants'
-// // import { MAX_FEE_PER_GAS, MAX_PRIORITY_FEE_PER_GAS } from './constants'
 import { getPoolInfo } from './pool'
-// // import {
-// //   getProvider,
-// //   getWalletAddress,
-// //   sendTransaction,
-// //   TransactionState,
-// // } from './providers'
-// import { fromReadableAmount } from './utils'
+
 
 export type TokenTrade = Trade<Token, Token, TradeType>
-// import { FeeAmount } from '@uniswap/v3-sdk'
 import { CreateTradeDto } from '../dto/create-trade.dto'
 import { ethers, providers } from 'ethers'
 import { Dex } from '../entities'
