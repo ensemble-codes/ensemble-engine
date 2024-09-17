@@ -13,7 +13,7 @@
 ## Installation
 
 ```bash
-$ pnpm install
+pnpm install
 ```
 
 ## Running
@@ -24,13 +24,14 @@ Start the service to process requests
 
 ```bash
 # development
-$ pnpm start
+pnpm start
 
 # watch mode
-$ pnpm run start:dev
+pnpm run start:dev
 
 # production mode
-$ pnpm run start:prod
+pnpm run build
+pnpm run start:prod
 ```
 
 ### Engine
@@ -39,13 +40,13 @@ Start the for worfklows execution
 
 ```bash
 # development
-$ pnpm run start:engine
+pnpm run start:engine
 
 # watch mode
-$ pnpm run start:engine:dev
+pnpm run start:engine:dev
 
 # production mode
-$ pnpm run start:engine:prod
+pnpm run start:engine:prod
 ```
 
 ## Test
