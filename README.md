@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank">Ensemble makes it easy to create and securely execute automated workflows that operate over multiple smart contracts and networks.</a>
+  <a href="https://ensemble.codes/" target="blank">Ensemble makes it easy to create and securely execute automated workflows that operate over multiple smart contracts and networks.</a>
 </p>
 
   <p align="center"></p>
