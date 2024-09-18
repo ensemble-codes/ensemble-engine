@@ -4,7 +4,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 
-console.log('process.env.MONGODB_URI', process.env.MONGODB_URI);
 @Module({
   imports: [
     ConfigModule.forRoot(),
