@@ -11,15 +11,16 @@ export class WalletsController {
     return this.walletsService.create();
   }
 
+  @Post(':address')
+  insert(@Param('address') address: string) {
+    return this.walletsService.insert(address);
+  }
+
   @Get(':id')
   findOne(@Param('walletId') id: string): Promise<Wallet> {
     return this.walletsService.findOne(id);
   }
-  /**
-   * Fetches wallets by a group identifier.
-   * @param {string} id - The unique identifier for the wallet group.
-   * @returns {Promise<Wallet[]>} Returns an array of wallets associated with the group ID.
-   */
+
   @Get('group/:groupId')
   findAllByGroupId(@Param('groupId') groupId: string): Promise<Wallet[]> {
     return this.walletsService.getWalletsByGroup(groupId);
