@@ -11,8 +11,11 @@ export class Wallet {
     @Prop({ required: true, unique: true })
     address: string;
 
-    @Prop({ required: true })
+    @Prop()
     privateKey: string;
+
+    @Prop({ required: true, default: 'local'})
+    type: string
 }
 
 export const WalletSchema = SchemaFactory.createForClass(Wallet);
