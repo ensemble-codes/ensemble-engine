@@ -21,14 +21,15 @@ export class WalletsService {
    * @param {number} numberOfWallets - The number of wallets to create.
    * @returns {string} The identifier for the group of created wallets. This identifier can be used to retrieve the group.
    */
-  create() {
+  create(ownerId: string) {
     const groupId = generateId()
     const wallet = EthersWallet.createRandom()
     console.log(`generating wallet with address ${wallet.address}`)
     const newWallet = new this.walletModel({
       groupId,
       address: wallet.address,
-      privateKey: wallet.privateKey
+      privateKey: wallet.privateKey,
+      owner: ownerId
     });
     // TODO: Maybe add await here
     return newWallet.save();
@@ -41,26 +42,28 @@ export class WalletsService {
    * @param {number} numberOfWallets - The number of wallets to create.
    * @returns {string} The identifier for the group of created wallets. This identifier can be used to retrieve the group.
    */
-    insert(address: string) {
+    insert(ownerId: string, address: string) {
       console.log(`inserting external wallet with address ${address}`)
       const groupId = generateId()
       const newWallet = new this.walletModel({
         groupId,
         address: address,
-        type: 'external'
+        type: 'external',
+        owner: ownerId
       });
       // TODO: Maybe add await here
       return newWallet.save();
     }
 
-  // async loadWallet(step: Step, workflow: Workflow): Promise<Wallet> {
-  //   console.log(`loading wallet for workflow ${workflow.name}, wallet data: ${JSON.stringify(workflow.wallet)}`)
-  //   const wallets = await this.getWalletsByGroup(workflow.wallet.group)
-
-  //   const randomIndex = Math.floor(Math.random() * wallets.length);
-  //   return wallets[randomIndex];
-  // }
-
+    /**
+     * Retrieves all wallets owned by a specific user.
+     * @param {string} ownerId - The identifier of the wallet owner.
+     * @returns {Promise<Wallet[]>} An array of wallets owned by the user.
+     */
+    async findWalletsByOwner(ownerId: string): Promise<Wallet[]> {
+      const wallets = await this.walletModel.find({ owner: ownerId }).exec();
+      return wallets;
+    }
     /**
    * Retrieves a group of wallets by their identifier.
    * @param {string} id - The identifier of the wallet group.

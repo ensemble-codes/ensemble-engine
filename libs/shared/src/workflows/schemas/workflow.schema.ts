@@ -21,6 +21,12 @@ export class Workflow extends Document {
 
   @Prop({ type: [ContractEntity] })
   contracts: ContractEntity[];
+
+  @Prop({ type: 'ObjectId', ref: 'User', required: true })
+  owner: string;
+
+  @Prop({ type: Boolean, default: false })
+  isPublic: boolean
 }
 
 export const WorkflowSchema = SchemaFactory.createForClass(Workflow);

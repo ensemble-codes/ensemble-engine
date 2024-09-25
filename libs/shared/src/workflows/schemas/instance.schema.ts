@@ -26,6 +26,9 @@ export class WorkflowInstance extends Document {
 
   @Prop({ type: Map, of: String })
   params: Map<string, string>;
+
+  @Prop({ type: 'ObjectId', ref: 'User', required: true })
+  owner: string;
 }
 
 export const WorkflowInstanceSchema = SchemaFactory.createForClass(WorkflowInstance);

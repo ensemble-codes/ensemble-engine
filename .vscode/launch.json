@@ -5,8 +5,9 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Ensemble Engine",
-      "args": ["${workspaceFolder}/apps/ensemble-engine/src/main.ts"],
-      "runtimeArgs": ["--nolazy", "-r", "ts-node/register", "-r", "tsconfig-paths/register"],
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/apps/ensemble-engine/src/main.ts",
+      "outFiles": ["${workspaceFolder}/dist/apps/ensemble-engine/**/*.js"],
       "cwd": "${workspaceFolder}/apps/ensemble-engine",
       "console": "integratedTerminal",
       "internalConsoleOptions": "openOnSessionStart"
