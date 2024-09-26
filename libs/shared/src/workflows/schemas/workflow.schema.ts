@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { WalletEntity } from '../entities/wallet.entity'
 import { Step } from '../entities/step.entity'
 import { ContractEntity } from '../entities/contract.entity'
@@ -21,6 +21,12 @@ export class Workflow extends Document {
 
   @Prop({ type: [ContractEntity] })
   contracts: ContractEntity[];
+
+  @Prop({ type: 'ObjectId', ref: 'User', required: true })
+  owner: Types.ObjectId;
+
+  @Prop({ type: Boolean, default: false })
+  isPublic: boolean;
 }
 
 export const WorkflowSchema = SchemaFactory.createForClass(Workflow);

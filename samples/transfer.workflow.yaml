@@ -14,7 +14,7 @@
       trigger:
           name: daily_schedule
           type: periodic
-          interval: daily
+          interval: minute
   contracts:
     - name: WFUSE
       address: '0x0BE9e53fd7EDaC9F859882AfdDa116645287C629'

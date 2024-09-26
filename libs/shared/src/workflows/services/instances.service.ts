@@ -15,18 +15,18 @@ export class WorkflowInstancesService {
   ) {}
 
   // Create a new workflow instance
-  async create(createWorkflowInstanceDto: CreateWorkflowInstanceDto): Promise<WorkflowInstance> {
-
+  async create(ownerId: string, createWorkflowInstanceDto: CreateWorkflowInstanceDto): Promise<WorkflowInstance> {
     const workflow = await this.workflowsService.findOne(createWorkflowInstanceDto.workflowId);
-    const newWorkflowInstance = new this.workflowInstanceModel({ ...createWorkflowInstanceDto, workflow: workflow._id,  });
+    return this.workflowInstanceModel.create({
+       ...createWorkflowInstanceDto, workflow: workflow._id, owner: ownerId
+    });
 
-
-    return newWorkflowInstance.save();
+    // return newWorkflowInstance.save();
   }
 
   // Find all workflow instances
-  async findAll(): Promise<WorkflowInstance[]> {
-    return this.workflowInstanceModel.find().populate('workflow').exec();
+  async findAll(ownerId: any): Promise<WorkflowInstance[]> {
+    return this.workflowInstanceModel.find({ owner: ownerId }).populate('workflow').exec();
   }
 
   // Find a specific workflow instance by ID
@@ -94,8 +94,6 @@ export class WorkflowInstancesService {
 
   async findByStatus(status: string): Promise<WorkflowInstance[]> {
     return this.workflowInstanceModel.find({ status }).populate('workflow').exec();
-
-    // return this.workflowInstanceRepository.find({ where: { status } });
   }
   // Update a workflow instance
   async update(id: string, updateWorkflowInstanceDto: any) {
