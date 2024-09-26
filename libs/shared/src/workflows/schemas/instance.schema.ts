@@ -6,7 +6,7 @@ import { TriggerSnapshot } from '../entities/trigger-snapshot.entity';
 @Schema({ timestamps: true })
 export class WorkflowInstance extends Document {
   
-  @Prop({ type: Types.ObjectId, ref: Workflow.name, required: true })
+  @Prop({ type: 'ObjectId', ref: 'Workflow', required: true })
   workflow: Workflow;
 
   @Prop({ default: 'pending' })
@@ -28,7 +28,7 @@ export class WorkflowInstance extends Document {
   params: Map<string, string>;
 
   @Prop({ type: 'ObjectId', ref: 'User', required: true })
-  owner: string;
+  owner: Types.ObjectId;
 }
 
 export const WorkflowInstanceSchema = SchemaFactory.createForClass(WorkflowInstance);

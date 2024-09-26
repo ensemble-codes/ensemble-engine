@@ -9,6 +9,7 @@ import { ConditionsService } from './conditions.service';
 import { Trigger } from 'libs/shared/src/workflows/entities/trigger.entity';
 import { TransactionsManagerService } from '../transactions/transactions-manager.service';
 import { WorkflowInstanceEntity } from 'libs/shared/src/workflows/entities/instance.entity';
+import { Contract } from 'ethers';
 
 @Injectable()
 export class WorkflowProcessorService {
@@ -80,9 +81,10 @@ export class WorkflowProcessorService {
     const methodArgs = step.arguments;
     console.log(`calling method ${methodName} with args ${JSON.stringify(methodArgs)}`);
 
-    const methodData = contract.interface.encodeFunctionData(methodName, methodArgs);
+    const methodData = this.encodeFunctionData(contract, methodName, methodArgs);
+    console.info(`encoded method data: ${methodData}`);
     const target = contract.address
-    // const networkName = contract.network
+    console.info(`target conract: ${target}`);
 
     const tx = {
       to: target,
@@ -94,27 +96,23 @@ export class WorkflowProcessorService {
 
     this.transactionsManagerService.sendTransaction(tx, instance);
   }
-
-  // async sendTransaction(tx: any, workflow: Workflow, provider: any) {
-  //   const wallet = await this.signersService.getSignerWallet(workflow, provider);
-
-  //   // Send the signed transaction
-  //   try {
-  //     console.log(`Sending transaction: ${JSON.stringify(tx)}. from wallet: ${wallet.address}`);
-  //     const txResponse = await wallet.sendTransaction(tx);
-  //     console.log('Transaction sent:', txResponse.hash);
-  
-  //     // Wait for the transaction to be mined
-  //     const receipt = await txResponse.wait();
-  //     console.log('Transaction mined:', receipt);
-  //   } catch (error) {
-  //     console.error('Error sending transaction:', error);
-  //   }
-
-  // }
+  encodeFunctionData(contract: Contract, methodName: string, methodArgs: any) {
+    const finalMethodArgs = methodArgs.map((arg: any) => {
+      if (typeof arg === 'object' && arg !== null) {
+        return Object.values(arg)[0];
+      }
+      return arg
+    })
+    console.log({ finalMethodArgs })
+    return contract.interface.encodeFunctionData(methodName, finalMethodArgs)
+  }
 
   async checkPreconditions(step: Step, instance: WorkflowInstanceEntity): Promise<boolean> {
     console.log('Checking preconditions for step:', step.name);
+    if (!step.prerequisites?.length) {
+      console.log('No prerequisites for step:', step.name);
+      return true
+    }
     const { contracts } = instance.workflow
     for (const pre of step.prerequisites) {
       const data = await this.conditionsService.fetchCondition(pre, contracts);
@@ -150,7 +148,7 @@ export class WorkflowProcessorService {
       const methodArgs = [pre.methodArgs[1], pre.condition.value];
       console.log(`calling method ${methodName} with args ${JSON.stringify(methodArgs)}`);
 
-      const methodData = contract.interface.encodeFunctionData(methodName, methodArgs);
+      const methodData = this.encodeFunctionData(contract, methodName, methodArgs);
       const target = contract.address
       // networkName = contract.network
       console.log(contract.network);

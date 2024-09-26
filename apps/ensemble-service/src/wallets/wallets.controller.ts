@@ -1,4 +1,4 @@
-import { Controller, Post, Request, Param, Get, UseGuards, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Controller, Post, Request, Param, Get, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { WalletsService } from 'libs/shared/src/wallets/wallets.service';
 import { Wallet } from 'libs/shared/src/wallets/schemas/wallet.schema';
 // import { JwtAuthGuard } from '../auth/jwt-auth.guard';
