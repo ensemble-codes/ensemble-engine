@@ -11,7 +11,7 @@ export class Wallet {
     @Prop({ required: true, unique: true })
     address: string;
 
-    @Prop()
+    @Prop({ select: false })
     privateKey: string;
 
     @Prop({ required: true, default: 'local'})
