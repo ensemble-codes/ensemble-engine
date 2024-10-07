@@ -84,8 +84,8 @@ export class WalletsService {
    * @returns {Promise<Wallet>} The wallet document if found.
    * @throws {NotFoundException} Throws if no wallet is found for the given address.
    */
-    async findOne(address: string): Promise<Wallet> {
-      const wallet = await this.walletModel.findOne({ address }).exec();
+    async findOne(address: string, withPk: boolean = false): Promise<Wallet> {
+      const wallet = await this.walletModel.findOne({ address }).select(withPk ? '+privateKey' : '').exec();
       if (!wallet) {
           throw new NotFoundException(`Wallet with address ${address} not found.`);
       }

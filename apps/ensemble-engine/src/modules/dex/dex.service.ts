@@ -18,9 +18,9 @@ export class DexService {
 
 
   async swap(dexArguments: DexArguments, instance: WorkflowInstanceEntity) {
-    console.info(`Swapping ${dexArguments.tokenInAmount} ${dexArguments.tokenInAddress} for ${dexArguments.tokenOutAddress} on ${dexArguments.dexName} dex`)
+    console.info(`Swapping ${dexArguments.tokenInAmount} ${dexArguments.tokenInAddress} for ${dexArguments.tokenOutAddress} on ${dexArguments.dexName} dex. network: ${dexArguments.network}`)
     const dexData = this.getDexData(dexArguments.dexName, dexArguments.network)
-    console.info('dexData', dexData)
+    console.debug('dexData', dexData)
 
     const tokenIn = await this.providerService.fetchTokenDetails(dexArguments.tokenInAddress, dexData.network)
     const tokenOut = await this.providerService.fetchTokenDetails(dexArguments.tokenOutAddress, dexData.network)
@@ -33,8 +33,8 @@ export class DexService {
       receiverAddress: dexArguments.receiverAddress
     }
 
-    const isaFulfilled = await this.checkPreconditions(dexData, createTradeDto, instance)
-    if (!isaFulfilled) {
+    const isFulfilled = await this.checkPreconditions(dexData, createTradeDto, instance)
+    if (!isFulfilled) {
       console.error('Preconditions not met, waiting for approval')
       return
     }

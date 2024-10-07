@@ -9,6 +9,7 @@ import { Workflow } from '../entities/workflow.entity';
 
 @Injectable()
 export class WorkflowInstancesService {
+
   constructor(
     @InjectModel(WorkflowInstance.name) private readonly workflowInstanceModel: Model<WorkflowInstance>,
     private readonly workflowsService: WorkflowsService
@@ -17,11 +18,12 @@ export class WorkflowInstancesService {
   // Create a new workflow instance
   async create(ownerId: string, createWorkflowInstanceDto: CreateWorkflowInstanceDto): Promise<WorkflowInstance> {
     const workflow = await this.workflowsService.findOne(createWorkflowInstanceDto.workflowId);
-    return this.workflowInstanceModel.create({
+    const workflowInstance = await this.workflowInstanceModel.create({
        ...createWorkflowInstanceDto, workflow: workflow._id, owner: ownerId
-    });
+    })
 
-    // return newWorkflowInstance.save();
+    return this.workflowInstanceModel.findById(workflowInstance._id).populate('workflow').exec();
+
   }
 
   // Find all workflow instances
@@ -89,6 +91,23 @@ export class WorkflowInstancesService {
     instance.status = 'stopped';
     instance.completedAt = new Date();
     await instance.save();
+    return instance;
+  }
+
+  async reset(id: any) {
+    const instance = await this.findOne(id);
+    if (!instance) {
+      throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
+    }
+    if (instance.status == 'stopped' || instance.status === 'completed'|| instance.status === 'pending') {
+      throw new BadRequestException(`WorkflowInstance with ID ${id} cannot be reset with status ${instance.status}`);
+    }
+
+    // reset the instance to the initial state
+    instance.currentStepIndex = 0;
+    instance.triggerSnapshots = new Map<string, TriggerSnapshot>();
+    await instance.save();
+    console.log('instance', instance);
     return instance;
   }
 

@@ -32,7 +32,9 @@ export class BlockchainProviderService {
 
   getProvider(networkName: string): ethers.providers.JsonRpcProvider {
     if (!this.networkUrls[networkName]) {
-      throw new Error(`RPC URL for ${networkName} is not set`);
+      const errorMessage = `RPC URL for ${networkName} is not set`;
+      console.error(errorMessage);
+      throw new Error(errorMessage);
     }
     return this.providers[networkName];
   }

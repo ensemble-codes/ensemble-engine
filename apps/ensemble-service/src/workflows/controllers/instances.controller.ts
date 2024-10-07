@@ -51,4 +51,9 @@ export class WorkflowInstancesController {
   async stop(@Param('id') id: string) {
     return this.workflowInstancesService.stop(id);
   }
+
+  @Post('reset/:id')
+  async reset(@Param('id') id) {
+    return this.workflowInstancesService.reset(id);
+  }
 }

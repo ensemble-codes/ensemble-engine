@@ -6,7 +6,7 @@
       "request": "launch",
       "name": "Debug Ensemble Engine",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/apps/ensemble-engine/src/main.ts",
+      "program": "${workspaceFolder}/dist/apps/ensemble-engine/main.js",
       "outFiles": ["${workspaceFolder}/dist/apps/ensemble-engine/**/*.js"],
       "cwd": "${workspaceFolder}/apps/ensemble-engine",
       "console": "integratedTerminal",

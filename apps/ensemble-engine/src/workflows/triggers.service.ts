@@ -41,7 +41,7 @@ export class TriggersService {
     const oldSnapshot = await this.workflowInstancesService.storeTriggerSnapsot(instance.id, snapshot);
 
     const isUpdated = !oldSnapshot || oldSnapshot.data.toString() !== snapshot.data.toString();
-    console.log(`Trigger ${trigger.name} check on ${snapshot.lastExecution}. isUpdated: ${isUpdated}`);
+    console.log(`Trigger ${trigger.name} is ${!isUpdated ? 'not' : ''} updated. check dont at ${snapshot.lastExecution}`);
 
     return isUpdated
   }

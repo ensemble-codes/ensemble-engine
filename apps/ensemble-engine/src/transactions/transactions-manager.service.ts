@@ -33,7 +33,7 @@ export class TransactionsManagerService {
   }
 
   async getSignerWallet(walletAddress: string, provider: any): Promise<Wallet> {
-    const walletData = await this.walletsService.findOne(walletAddress);
+    const walletData = await this.walletsService.findOne(walletAddress, true);
     const signer = new Wallet(walletData.privateKey, provider);
     return signer;
   }

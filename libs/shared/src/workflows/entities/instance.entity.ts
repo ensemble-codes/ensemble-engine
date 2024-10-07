@@ -4,7 +4,6 @@ import { traverseAndInterpolate } from '../utils';
 import { Step } from './step.entity';
 
 export class WorkflowInstanceEntity {
-
   workflow: Workflow;
   originalWorkflow: Workflow;
   status: string;
@@ -74,7 +73,7 @@ export class WorkflowInstanceEntity {
     if (currentStep && currentStep.network) {
       return currentStep.network;
     }
-
+    console.warn(`No network found for workflow ${this.id}, step ${this.currentStepIndex}`)
     return null; // Return null if no network is available for the current step
   }
 

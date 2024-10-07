@@ -52,26 +52,35 @@ export class WorkflowProcessorService {
     const { trigger } = currentStep;
     const isTriggered = await this.triggerService.checkTrigger(trigger, instance);
     if (isTriggered) {
-      console.log('Trigger updated');
+      console.log(`An update in trigger ${trigger.name} has been detected. Executing step ${currentStep.name}`);
       await this.executeStep(currentStep, instance);
     }
   }
 
   async executeStep(step: Step, instance: WorkflowInstanceEntity) {
-
+    
+    console.log(`Executing step ${step.name} for workflow with ID: ${instance.workflow.name}`);
+    console.debug({ arguments: step.arguments })
     const isTrue = await this.checkPreconditions(step, instance);
-    if (!isTrue) {
-      console.error('Preconditions not met for step:', step.name);
+    if (isTrue) {
+      console.log(`Preconditions met for step: ${step.name}`);
+    } else {
+      console.error(`Preconditions not met for step: %{step.name}. Skipping step`, );
       return;
     }
-    console.log(`Executing step ${step.name} for workflow with ID: ${instance.workflow.name}`);
 
-    // let target, methodData, networkName
-    if (step.module === 'dca') {
+    console.debug(`Starting execution of step ${JSON.stringify(step)}`);
+    for (const [key, value] of Object.entries(step)) {
+      console.debug(`${key}: ${value}`);
+    }
+    if (step.module === 'dex') {
       console.log(`using module ${step.module} for method ${step.method}`);
       const dexArguments: any = step.arguments;
       await this.dexService.swap(dexArguments, instance);
       console.log(`module ${step.module} finished call ${step.method}`);
+      return
+    } else if (step.module) {
+      console.error(`Module ${step.module} not found. Skipping step`);
       return
     }
 
@@ -81,14 +90,17 @@ export class WorkflowProcessorService {
     const methodArgs = step.arguments;
     console.log(`calling method ${methodName} with args ${JSON.stringify(methodArgs)}`);
 
+    console.log('EXECUTE STEP');
     const methodData = this.encodeFunctionData(contract, methodName, methodArgs);
     console.info(`encoded method data: ${methodData}`);
     const target = contract.address
     console.info(`target conract: ${target}`);
-
+    console.info(`wallet address: ${instance.workflow.wallet.address}`);
     const tx = {
       to: target,
       data: methodData,
+      // maxFeePerGas: 10000000000,
+      // maxPriorityFeePerGas: 1000000000,
       // gasLimit: 100000,
       value: 0
     };
@@ -98,6 +110,7 @@ export class WorkflowProcessorService {
     this.transactionsManagerService.sendTransaction(tx, instance);
   }
   encodeFunctionData(contract: Contract, methodName: string, methodArgs: any) {
+    console.log({ methodArgs })
     const finalMethodArgs = methodArgs.map((arg: any) => {
       if (typeof arg === 'object' && arg !== null) {
         return Object.values(arg)[0];
@@ -148,7 +161,7 @@ export class WorkflowProcessorService {
 
       const methodArgs = [pre.methodArgs[1], pre.condition.value];
       console.log(`calling method ${methodName} with args ${JSON.stringify(methodArgs)}`);
-
+      console.log("PRECONDDITIONS:")
       const methodData = this.encodeFunctionData(contract, methodName, methodArgs);
       const target = contract.address
       // networkName = contract.network
