@@ -17,7 +17,6 @@ export class WorkflowsService {
 
   create(ownerId: string, createWorkflowDto: CreateWorkflowDto) {
     console.info(`creating workflow with ownerId: ${ownerId} and dto: ${createWorkflowDto}`)
-    console.log(typeof ownerId)
     return this.workflowModel.create({
       ...createWorkflowDto,
       owner: ownerId

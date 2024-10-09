@@ -7,13 +7,15 @@ import { DexModule } from '../modules/dex/dex.module';
 import { TriggersService } from './triggers.service';
 import { ConditionsService } from './conditions.service';
 import { TransactionsManagerModule } from '../transactions/transactions-manager.module';
+import { ModulesModule } from '../modules/manager/modules.module';
 @Module({
   imports: [
     WorkflowsModule,
     BlockchainProviderModule,
     AbiModule,
     DexModule,
-    TransactionsManagerModule
+    TransactionsManagerModule,
+    ModulesModule
   ],
   providers: [TriggersService, WorkflowProcessorService, ConditionsService],
 })

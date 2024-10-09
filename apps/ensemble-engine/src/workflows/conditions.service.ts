@@ -41,9 +41,4 @@ export class ConditionsService {
     }
 
   }
-
-  // async fetchCondition() {
-
-
-
 }

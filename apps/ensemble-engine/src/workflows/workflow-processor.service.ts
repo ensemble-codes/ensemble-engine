@@ -10,6 +10,7 @@ import { Trigger } from 'libs/shared/src/workflows/entities/trigger.entity';
 import { TransactionsManagerService } from '../transactions/transactions-manager.service';
 import { WorkflowInstanceEntity } from 'libs/shared/src/workflows/entities/instance.entity';
 import { Contract } from 'ethers';
+import { ModulesManagerService } from '../modules/manager/modules-manager.service';
 
 @Injectable()
 export class WorkflowProcessorService {
@@ -21,6 +22,7 @@ export class WorkflowProcessorService {
     private readonly triggerService: TriggersService,
     private readonly conditionsService: ConditionsService,
     private readonly transactionsManagerService: TransactionsManagerService,
+    private readonly modulesManagerService: ModulesManagerService,
   ) {
     console.log('WorkflowProcessor V2 service created');
   }
@@ -70,18 +72,17 @@ export class WorkflowProcessorService {
     }
 
     console.debug(`Starting execution of step ${JSON.stringify(step)}`);
-    for (const [key, value] of Object.entries(step)) {
-      console.debug(`${key}: ${value}`);
-    }
-    if (step.module === 'dex') {
-      console.log(`using module ${step.module} for method ${step.method}`);
-      const dexArguments: any = step.arguments;
-      await this.dexService.swap(dexArguments, instance);
-      console.log(`module ${step.module} finished call ${step.method}`);
-      return
-    } else if (step.module) {
-      console.error(`Module ${step.module} not found. Skipping step`);
-      return
+    if (step.module) {
+      this.modulesManagerService.executeModule(instance, step);
+      return;
+    //   console.log(`using module ${step.module} for method ${step.method}`);
+    //   const dexArguments: any = step.arguments;
+    //   await this.dexService.swap(dexArguments, instance);
+    //   console.log(`module ${step.module} finished call ${step.method}`);
+    //   return
+    // } else if (step.module) {
+    //   console.error(`Module ${step.module} not found. Skipping step`);
+    //   return
     }
 
     const contract = await this.providerService.loadContract(step.contract, instance.workflow.contracts);
