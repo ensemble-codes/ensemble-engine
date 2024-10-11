@@ -6,6 +6,7 @@ export class Trigger {
   type: string;
   contract: string;
   event: string;
+  startBlock: number;
   method: string;
   methodArgs: string[];
   interval: string;

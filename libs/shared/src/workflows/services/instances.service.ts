@@ -123,6 +123,47 @@ export class WorkflowInstancesService {
   async remove(id: string) {
     return `This action removes a #${id} workflow instance`;
   }
+
+  async startProcessing(id: string) {
+    const instance = await this.findOne(id);
+    if (!instance) {
+      throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
+    }
+    if (instance.isProcessing) {
+      return false;
+    }
+    instance.isProcessing = true;
+    instance.startProcessingAt = new Date();
+    instance.save();
+    return true;
+  }
+
+  async stopProcessing(id: string) {
+    const instance = await this.findOne(id);
+    if (!instance) {
+      throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
+    }
+    instance.isProcessing = false;
+    instance.currentStepIndex++;
+    if (instance.currentStepIndex >= instance.workflow.steps.length) {
+      instance.status = 'completed';
+      instance.currentStepIndex = 0;
+      instance.completedAt = new Date();
+    }
+    instance.save();
+    return true;
+  }
+
+  async isSafeToStop(id: string): Promise<boolean> {
+    const PROCESSING_TIMEOUT = 50000;
+    const instance = await this.findOne(id);
+    if (!instance.startProcessingAt || !instance.isProcessing) {
+      return true;
+    }
+    const isSafe = new Date().getTime() - instance.startProcessingAt.getTime() > PROCESSING_TIMEOUT;
+    console.log('isSafe:', isSafe);
+    return isSafe;
+  }
 }
 
 

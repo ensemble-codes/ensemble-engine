@@ -18,6 +18,12 @@ export class WorkflowInstance extends Document {
   @Prop({ type:  Map<string, TriggerSnapshot> })
   triggerSnapshots: Map<string, TriggerSnapshot>;
 
+  @Prop({ default: false })
+  isProcessing: boolean;
+
+  @Prop({ type: Date })
+  startProcessingAt: Date;
+
   @Prop({ type: Date })
   startedAt: Date;
 

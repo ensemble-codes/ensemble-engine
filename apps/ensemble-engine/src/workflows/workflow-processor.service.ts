@@ -33,6 +33,21 @@ export class WorkflowProcessorService {
     const workflowInstanceDocs = await this.workflowInstancesService.findByStatus('running');
     for (const instanceDoc of workflowInstanceDocs) {
       console.log(`Processing instance ${instanceDoc.id}`);
+
+      if (instanceDoc.isProcessing) {
+        if (await this.workflowInstancesService.isSafeToStop(instanceDoc.id)) {
+          await this.workflowInstancesService.stopProcessing(instanceDoc.id);
+        } else {
+          console.log(`Instance ${instanceDoc.id} is already processing. Skipping.`);
+          continue;
+        }
+      }
+      const isStarted = await this.workflowInstancesService.startProcessing(instanceDoc.id);
+
+      if (!isStarted) {
+        console.log(`Instance ${instanceDoc.id} is already processing. Skipping.`);
+        continue;
+      }
       const instanceEntity = new WorkflowInstanceEntity(
         instanceDoc.id,
         instanceDoc.workflow.toJSON(),
@@ -42,9 +57,12 @@ export class WorkflowProcessorService {
         instanceDoc.startedAt,
         instanceDoc.completedAt,
         instanceDoc.params,
+
       );
       const currentStep = instanceEntity.getCurrentStep();
       await this.processStep(currentStep, instanceEntity);
+
+      await this.workflowInstancesService.stopProcessing(instanceDoc.id);
     }
     console.log('end: WorkflorProcessor V2 loop');
   }
@@ -52,6 +70,11 @@ export class WorkflowProcessorService {
 
   async processStep(currentStep: Step, instance: WorkflowInstanceEntity) {
     const { trigger } = currentStep;
+    if (!trigger) {
+      console.log(`No trigger for step ${currentStep.name}. Executing step immediately.`);
+      await this.executeStep(currentStep, instance);
+      return;
+    }
     const isTriggered = await this.triggerService.checkTrigger(trigger, instance);
     if (isTriggered) {
       console.log(`An update in trigger ${trigger.name} has been detected. Executing step ${currentStep.name}`);
@@ -73,16 +96,8 @@ export class WorkflowProcessorService {
 
     console.debug(`Starting execution of step ${JSON.stringify(step)}`);
     if (step.module) {
-      this.modulesManagerService.executeModule(instance, step);
+      await this.modulesManagerService.executeModule(instance, step);
       return;
-    //   console.log(`using module ${step.module} for method ${step.method}`);
-    //   const dexArguments: any = step.arguments;
-    //   await this.dexService.swap(dexArguments, instance);
-    //   console.log(`module ${step.module} finished call ${step.method}`);
-    //   return
-    // } else if (step.module) {
-    //   console.error(`Module ${step.module} not found. Skipping step`);
-    //   return
     }
 
     const contract = await this.providerService.loadContract(step.contract, instance.workflow.contracts);

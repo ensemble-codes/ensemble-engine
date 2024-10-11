@@ -20,6 +20,8 @@ export class TriggersService {
     switch (trigger.type) {
       case 'contract':
         return this.checkContactTrigger(trigger, instance);
+      case 'event':
+        return this.checkEventTrigger(trigger, instance);
       case 'periodic':
         return this.checkPeriodicTrigger(trigger, instance);
       default:
@@ -44,6 +46,38 @@ export class TriggersService {
     console.log(`Trigger ${trigger.name} is ${!isUpdated ? 'not' : ''} updated. check dont at ${snapshot.lastExecution}`);
 
     return isUpdated
+  }
+
+
+  async checkEventTrigger(trigger: Trigger, instance: WorkflowInstanceEntity) {
+
+    const oldSnapshot = instance.getTriggerSnapshot(trigger.name);
+
+    let fromBlock = Number(oldSnapshot ? oldSnapshot.blockNumber : trigger.startBlock);
+    if (fromBlock === 0) {
+      console.warn(`Using startBlock ${trigger.startBlock} as fromBlock`);
+      fromBlock = trigger.startBlock;
+    }
+    const network = instance.getCurrentNetwork()
+    const { log, event } = await this.conditionsService.fetchEventCondition(trigger, instance.workflow.contracts, network, fromBlock);
+
+    const snapshot = {
+      name: trigger.name,
+      event,
+      blockNumber: log.blockNumber,
+      params: event.args,
+      lastExecution: new Date()
+    }
+
+    await this.workflowInstancesService.storeTriggerSnapsot(instance.id, snapshot);
+
+    const isUpdated = !!event
+    console.log(`Trigger ${trigger.name} is ${!isUpdated ? 'not' : ''} updated. check dont at ${snapshot.lastExecution}`);
+
+
+    return isUpdated
+
+
   }
 
   async checkPeriodicTrigger(trigger: Trigger, instance: WorkflowInstanceEntity) {
