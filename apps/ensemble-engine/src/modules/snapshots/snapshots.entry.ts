@@ -2,7 +2,9 @@ import { WorkflowInstanceEntity } from 'libs/shared/src/workflows/entities/insta
 import { SnapshotBuilderService } from './snapshot-builder.service';
 import { SnapshotArguments } from './entities';
 import { SnapshotsService } from './snapshots.service';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class SnapshotModuleEntry {
   constructor(
     private readonly snapshotService: SnapshotsService,
@@ -11,20 +13,17 @@ export class SnapshotModuleEntry {
 
   async build(snapshotArguments: SnapshotArguments, instance: WorkflowInstanceEntity): Promise<void> {
     console.log(`Building snapshot for token address: ${snapshotArguments.tokenAddress}`);
+    console.log(this.snapshotService)
     const latestSnapshot = await this.snapshotService.findLatest(snapshotArguments.tokenAddress, snapshotArguments.network);
-    if (latestSnapshot) {
+  if (latestSnapshot) {
       console.log(`Latest snapshot found for token address: ${snapshotArguments.tokenAddress}`);
       const blockNumber = latestSnapshot.blockNumber + 1;
       console.log(`Building snapshot for block number: ${blockNumber}`);
-      await this.snapshotBuilderService.buildSnapshotFromBlock(blockNumber);
+      await this.snapshotBuilderService.buildSnapshotFromBlock({ ...snapshotArguments, startBlock: blockNumber }, instance.getContext());
       console.log(`Snapshot for block number ${blockNumber} built successfully`);
     } else {
       console.log(`No latest snapshot found for token address: ${snapshotArguments.tokenAddress}`);
-      await this.snapshotBuilderService.buildSnapshotFromBlock(snapshotArguments.startBlock);
+      await this.snapshotBuilderService.buildSnapshotFromBlock(snapshotArguments, instance.getContext());
     }
-    // get token address contracr blocknumber
-    // console.log(`Building snapshot for block number: ${blockNumber}`);
-    // await this.snapshotBuilderService.buildSnapshotFromBlock(blockNumber);
-    // console.log(`Snapshot for block number ${blockNumber} built successfully`);
   }
 }

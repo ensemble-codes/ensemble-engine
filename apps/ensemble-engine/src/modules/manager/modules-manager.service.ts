@@ -34,7 +34,7 @@ export class ModulesManagerService {
         console.log(`using module ${step.module} for method ${step.method}`);
         const snapshotArguments: any = step.arguments;
         console.log(`snapshotArguments: ${JSON.stringify(snapshotArguments)}`);
-        await this.snapshotModuleEntry.build(snapshotArguments, instance);
+        await this.snapshotModuleEntry.build({ ...snapshotArguments, startBlock: Number(snapshotArguments.startBlock)}, instance);
         console.log(`module ${step.module} finished call ${step.method}`);
         break;
       default:

@@ -2,6 +2,7 @@ import { Workflow } from './workflow.entity'; // Adjust the path if necessary
 import { TriggerSnapshot } from '../entities/trigger-snapshot.entity';
 import { traverseAndInterpolate } from '../utils';
 import { Step } from './step.entity';
+import { WorkflowContext } from './workflow-context.entity';
 
 export class WorkflowInstanceEntity {
   workflow: Workflow;
@@ -79,5 +80,12 @@ export class WorkflowInstanceEntity {
 
   getWalletAddress(): string {
     return this.workflow.wallet.address
+  }
+
+  getContext(): WorkflowContext {
+    return {
+      network: this.getCurrentNetwork(),
+      walletAddress: this.getWalletAddress()
+    }
   }
 }

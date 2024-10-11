@@ -13,7 +13,7 @@ import { SnapshotBuilderService } from '../snapshots/snapshot-builder.service';
     MongooseModule.forFeature([{ name: Balance.name, schema: BalanceSchema }]),
   ],
   controllers: [DividentsController],
-  providers: [DividentsService, SnapshotBuilderService],
+  providers: [DividentsService],
 })
 
 export class DividentsModule {}

@@ -7,7 +7,7 @@ export class Snapshot extends Document {
   @Prop({ type: Date, default: Date.now })
   timestamp: Date;
 
-  @Prop({ type: Number })
+  @Prop({ type: Number, required: true })
   blockNumber: number;
 
   @Prop({ required: true })

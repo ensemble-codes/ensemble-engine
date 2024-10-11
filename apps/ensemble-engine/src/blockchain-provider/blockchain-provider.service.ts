@@ -48,6 +48,9 @@ export class BlockchainProviderService {
   async loadContract(contractName: string, contracts: ContractEntity[]) {
     console.log(`loading contract ${contractName}`);
     const contractEntity = contracts.find(c => c.name === contractName);
+    if (!contractEntity) {
+      throw new Error(`Contract ${contractName} not found`);
+    }
     const contractABI = await this.abiService.findByName(contractEntity.abi)
     const provider = this.getProvider(contractEntity.network);
     const contract = new ethers.Contract(contractEntity.address, contractABI.abi, provider);

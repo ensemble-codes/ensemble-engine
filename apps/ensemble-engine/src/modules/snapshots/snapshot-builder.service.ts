@@ -3,6 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Snapshot } from './schemas/snapshot.schema';
 import { Balance } from './schemas/balance.schema';
+import { SnapshotArguments } from './entities';
+import { WorkflowContext } from 'libs/shared/src/workflows/entities/workflow-context.entity';
+import { BlockchainProviderModule } from '../../blockchain-provider/blockchain-provider.module';
+import { BlockchainProviderService } from '../../blockchain-provider/blockchain-provider.service';
+import { BalancesService } from './services/balances.service';
 const ethers = require('ethers');
 
 @Injectable()
@@ -10,53 +15,101 @@ export class SnapshotBuilderService {
   constructor(
     @InjectModel(Snapshot.name) private snapshotModel: Model<Snapshot>,
     @InjectModel(Balance.name) private balanceModel: Model<Balance>,
+    private readonly balancesService: BalancesService,
+    private readonly blockchainProvider: BlockchainProviderService
   ) {}
 
-  async buildSnapshotFromBlock(blockNumber: number): Promise<void> {
+  async buildSnapshotFromBlock(snapshotArguments: SnapshotArguments, workflowContext: WorkflowContext): Promise<void> {
+    const timestamp = new Date();
+    const tokenHolders = await this.balancesService.getTokenHolders(timestamp);
+    // const tokenHoldersAccounts = tokenHolders.map(holder => holder.accountAddress).join(', ');
+    // console.log(`tokenHoldersAccounts: ${tokenHoldersAccounts}`)
     // Fetch the previous snapshot
-    const previousSnapshot = await this.snapshotModel.findOne().sort({ timestamp: -1 }).exec();
+    
+    console.log(`building snapshot from block ${snapshotArguments.startBlock}, on ${workflowContext.network}`)
+    // const previousSnapshot = await this.snapshotModel.findOne().sort({ timestamp: -1 }).exec();
+    const latestBalances = await this.balancesService.getLatestBalances(snapshotArguments.tokenAddress)
+    console.log(`latestBalances: ${latestBalances}`)
+    const provider = this.blockchainProvider.getProvider(workflowContext.network);
 
+    // const blockNumber = snapshotArguments.startBlock;
+    const startBlock = snapshotArguments.startBlock;
+    const latestBlock = await provider.getBlockNumber();
+    if (startBlock > latestBlock) { 
+      console.warn(`startBlock ${startBlock} is greater than latestBlock ${latestBlock}, skipping snapshot creation`);
+      return;
+    }
+    const toBlock = latestBlock
     // Fetch all ERC20 transfers from blockNumber
-    const transfers = await this.fetchERC20TransfersFromBlock(blockNumber);
+    const transfers = await this.fetchERC20Transfers(snapshotArguments.startBlock, toBlock, snapshotArguments.tokenAddress, workflowContext);
 
     // Create a new snapshot based on the previous snapshot and the new transfers
+    console.info(`Snapshot to be created properties: tokenAddress: ${snapshotArguments.tokenAddress}, metwork: ${snapshotArguments.network}, blockNumber: ${snapshotArguments.startBlock}`);
     const newSnapshot = new this.snapshotModel({
       timestamp: new Date(),
-      tokenAddress: previousSnapshot.tokenAddress,
+      tokenAddress: snapshotArguments.tokenAddress,
+      network: snapshotArguments.network,
+      blockNumber: toBlock,
       signature: '0x1', //TODO: generate signature
-      workflowWalletAddress: previousSnapshot.workflowWalletAddress,
+      workflowWalletAddress: workflowContext.walletAddress
     });
+    
+    const updatedBalances = [];
 
     // Update balances based on transfers
     for (const transfer of transfers) {
       const { from, to, value, tokenAddress } = transfer;
 
       // Update sender's balance
-      await this.updateBalance(from, tokenAddress, -value, newSnapshot);
+      const updatedSenderBalance = await this.balancesService.update(from, -value, newSnapshot._id.toString(), snapshotArguments);
+      updatedBalances.push(updatedSenderBalance);
 
       // Update receiver's balance
-      await this.updateBalance(to, tokenAddress, value, newSnapshot);
+      const updatedReceiverBalance = await this.balancesService.update(to, value, newSnapshot._id.toString(), snapshotArguments);
+      updatedBalances.push(updatedReceiverBalance);
+    }
+
+    // Put balances in the DB for the rest of the token holders
+    for (const holder of tokenHolders.filter(holder => !updatedBalances.some(ub => ub.accountAddress === holder.accountAddress))) {
+      const { accountAddress, balance } = holder;
+      await this.balancesService.update(accountAddress, balance, newSnapshot._id.toString(), snapshotArguments);
     }
 
     // Save the new snapshot
     await newSnapshot.save();
   }
 
-  private async fetchERC20TransfersFromBlock(blockNumber: number): Promise<any[]> {
-    const provider = new ethers.providers.JsonRpcProvider('YOUR_INFURA_OR_ALCHEMY_URL');
+  private async fetchERC20Transfers(fromBlock: number, toBlock: number, tokenAddress: string, workflowContext: WorkflowContext): Promise<any[]> {
+    const provider = this.blockchainProvider.getProvider(workflowContext.network);
 
-    const filter = {
-      fromBlock: blockNumber,
-      toBlock: blockNumber,
-      topics: [
-        ethers.utils.id("Transfer(address,address,uint256)")
-      ]
-    };
-
-    const logs = await provider.getLogs(filter);
     const iface = new ethers.utils.Interface([
       "event Transfer(address indexed from, address indexed to, uint256 value)"
     ]);
+    const logs = [];
+    const blockLimit = 1000; // Define the block limit per fetch
+    let currentBlock = fromBlock;
+
+    while (true) {
+      const toBlockTmp = Math.min(currentBlock + blockLimit, toBlock);
+      const filter = {
+        fromBlock: currentBlock,
+        toBlock: toBlockTmp,
+        address: tokenAddress,
+        topics: [
+          ethers.utils.id("Transfer(address,address,uint256)")
+        ]
+      };
+      console.log(`fetching ERC20 transfers from block ${currentBlock} to ${toBlockTmp}, on ${workflowContext.network}`)
+      const fetchedLogs = await provider.getLogs(filter);
+      console.log(`fetched ${fetchedLogs.length} logs from block ${currentBlock} to ${toBlockTmp}, on ${workflowContext.network}`)
+      logs.push(...fetchedLogs);
+
+      if (toBlock === toBlockTmp) {
+        break;
+      }
+
+      currentBlock += blockLimit;
+    }
 
     const transfers = logs.map(log => {
       const parsedLog = iface.parseLog(log);
@@ -69,25 +122,5 @@ export class SnapshotBuilderService {
     });
 
     return transfers;
-  }
-
-  private async updateBalance(account: string, tokenAddress: string, value: number, snapshot: Snapshot): Promise<void> {
-    const balance = await this.balanceModel.findOne({ accountAddress: account, tokenAddress }).exec();
-
-    if (balance) {
-      balance.balance += value;
-      balance.timestamp = new Date();
-      balance.snapshot.set(snapshot.id, snapshot.signature);
-      await balance.save();
-    } else {
-      const newBalance = new this.balanceModel({
-        balance: value,
-        tokenAddress,
-        accountAddress: account,
-        timestamp: new Date(),
-        snapshot: new Map([[snapshot.id, snapshot.signature]]),
-      });
-      await newBalance.save();
-    }
   }
 }

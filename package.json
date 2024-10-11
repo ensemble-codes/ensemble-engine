@@ -16,6 +16,7 @@
     "start:service": "nest start",
     "start:engine:dev": "nest start ensemble-engine --watch",
     "start:engine:prod": "node dist/apps/ensemble-engine/main",
+    "start:engine:debug": "nest start  --debug --watch ensemble-engine",
     "start:service:dev": "nest start --watch",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",

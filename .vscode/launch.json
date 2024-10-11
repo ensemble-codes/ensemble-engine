@@ -6,10 +6,10 @@
       "request": "launch",
       "name": "Debug Ensemble Engine",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/dist/apps/ensemble-engine/main.js",
-      "outFiles": ["${workspaceFolder}/dist/apps/ensemble-engine/**/*.js"],
-      "cwd": "${workspaceFolder}/apps/ensemble-engine",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:engine:debug"],
       "console": "integratedTerminal",
+      "sourceMaps": true,
       "internalConsoleOptions": "openOnSessionStart"
     }
   ]
