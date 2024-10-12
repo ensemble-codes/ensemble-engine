@@ -146,6 +146,7 @@ export class WorkflowInstancesService {
     instance.isProcessing = false;
     instance.currentStepIndex++;
     if (instance.currentStepIndex >= instance.workflow.steps.length) {
+      console.log(`Instance ${instance.id} has completed all steps. Setting status to completed.`);
       instance.status = 'completed';
       instance.currentStepIndex = 0;
       instance.completedAt = new Date();
@@ -160,8 +161,9 @@ export class WorkflowInstancesService {
     if (!instance.startProcessingAt || !instance.isProcessing) {
       return true;
     }
-    const isSafe = new Date().getTime() - instance.startProcessingAt.getTime() > PROCESSING_TIMEOUT;
-    console.log('isSafe:', isSafe);
+    const processingDuration = new Date().getTime() - instance.startProcessingAt.getTime();
+    const isSafe = processingDuration > PROCESSING_TIMEOUT;
+    console.log(`Processing duration: ${processingDuration} ms, timeout is ${PROCESSING_TIMEOUT} ms. Is safe to stop: ${isSafe}`);
     return isSafe;
   }
 }

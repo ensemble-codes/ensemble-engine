@@ -47,4 +47,17 @@ export class ModulesManagerService {
         break;
     }
   }
+
+  async fetchFeed(instance: WorkflowInstanceEntity, arg: string) {
+    console.log(`Fetching feed for arg: ${arg}`);
+    if (arg === '&latest-balances' || arg === '&latest-holders') {
+      const step = instance.getStep(0);
+      const snapshotArguments: any = step.arguments;
+      if (arg === '&latest-balances') {
+        return this.snapshotModuleEntry.getLatestBalances(snapshotArguments);
+      } else if (arg === '&latest-holders') {
+        return this.snapshotModuleEntry.getLatestHolders(snapshotArguments);
+      }
+    }
+  }
 }

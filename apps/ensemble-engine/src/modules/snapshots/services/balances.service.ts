@@ -37,6 +37,10 @@ export class BalancesService {
     return this.balanceModel.find().exec();
   }
 
+  async getBalancesBySnapshot(snapshotId: string): Promise<Balance[]> {
+    return this.balanceModel.find({ snapshot: snapshotId }).exec();
+  }
+
   async create(balance: Object): Promise<Balance> {
     const newBalance = new this.balanceModel(balance);
     return newBalance.save();
@@ -50,15 +54,23 @@ export class BalancesService {
     }
     const latestBalance = await this.getLatestBalance(snapshotArguments.tokenAddress, accountAddress);
     const balanceValue = latestBalance ? latestBalance.balance + value : value;
-    const newBalance = {
-      balance: balanceValue,
-      tokenAddress: snapshotArguments.tokenAddress,
-      network: snapshotArguments.network,
-      accountAddress,
-      timestamp: new Date(),
-      snapshot: snapshotId
-    };
-    return this.create(newBalance);
+    if (latestBalance && latestBalance.snapshot.toString() === snapshotId) {
+      latestBalance.balance = balanceValue;
+      latestBalance.timestamp = new Date();
+      return latestBalance.save();
+    } else {
+      const newBalance = {
+        balance: balanceValue,
+        tokenAddress: snapshotArguments.tokenAddress,
+        network: snapshotArguments.network,
+        accountAddress,
+        timestamp: new Date(),
+        snapshot: snapshotId
+      };
+      return this.create(newBalance);
+    }
+
+
   }
 
   async getTokenHolders(timestamp: Date): Promise<{ accountAddress: string, balance: number }[]> {

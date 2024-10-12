@@ -26,4 +26,14 @@ export class SnapshotModuleEntry {
       await this.snapshotBuilderService.buildSnapshotFromBlock(snapshotArguments, instance.getContext());
     }
   }
+
+  async getLatestHolders(snapshotArguments: SnapshotArguments): Promise<string[]> {
+    const latestBalances = await this.snapshotService.getLatestBalances(snapshotArguments.tokenAddress, snapshotArguments.network);
+    return latestBalances.map(balance => balance.accountAddress);
+  }
+
+  async getLatestBalances(snapshotArguments: SnapshotArguments): Promise<number[]> {
+    const latestBalances = await this.snapshotService.getLatestBalances(snapshotArguments.tokenAddress, snapshotArguments.network);
+    return latestBalances.map(balance => balance.balance);
+  }
 }

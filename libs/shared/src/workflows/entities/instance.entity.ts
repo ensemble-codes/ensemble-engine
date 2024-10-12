@@ -68,6 +68,10 @@ export class WorkflowInstanceEntity {
     return this.workflow.steps[this.currentStepIndex];
   }
 
+  getStep(index: number): Step {
+    return this.workflow.steps[index];
+  }
+
   getCurrentNetwork(): string | null {
     const currentStep = this.workflow.steps[this.currentStepIndex];
     
