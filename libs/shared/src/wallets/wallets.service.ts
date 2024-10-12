@@ -1,17 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Wallet } from './schemas/wallet.schema';
 import { Wallet as EthersWallet } from 'ethers';
 import { group } from 'console';
 import { Workflow } from 'libs/shared/src/workflows/entities/workflow.entity';
+import { CircleService } from '../workflows/circle/circle.service';
 
 const generateId = () =>  Math.random().toString(16).slice(2)
 
 @Injectable()
 export class WalletsService {
   constructor(
-    @InjectModel(Wallet.name) private readonly walletModel: Model<Wallet>
+    @InjectModel(Wallet.name) private readonly walletModel: Model<Wallet>,
+    @Inject(CircleService) private readonly circleService: CircleService,
   ) {}
 
   /**
@@ -21,18 +23,30 @@ export class WalletsService {
    * @param {number} numberOfWallets - The number of wallets to create.
    * @returns {string} The identifier for the group of created wallets. This identifier can be used to retrieve the group.
    */
-  create(ownerId: string) {
+  async create(ownerId: string, walletType: string = 'internal') {
     const groupId = generateId()
     const wallet = EthersWallet.createRandom()
-    console.log(`generating wallet with address ${wallet.address}`)
-    const newWallet = new this.walletModel({
-      groupId,
-      address: wallet.address,
-      privateKey: wallet.privateKey,
-      owner: ownerId
-    });
-    // TODO: Maybe add await here
-    return newWallet.save();
+    if (walletType === 'internal') {
+      console.log(`generating local wallet with address ${wallet.address}`)
+      const newWallet = new this.walletModel({
+        groupId,
+        address: wallet.address,
+        privateKey: wallet.privateKey,
+        owner: ownerId
+      });
+      return newWallet.save();
+    } else if (walletType === 'circle') {
+      console.log(`generating circle wallet`)
+      const circleWallet = await this.circleService.createWallet(groupId)
+      const newWallet = new this.walletModel({
+        groupId,
+        address: circleWallet.address,
+        privateKey: wallet.privateKey,
+        owner: ownerId,
+        type: 'circle'
+      });
+      return newWallet.save();
+    }
   }
 
     /**

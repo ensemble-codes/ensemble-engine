@@ -113,7 +113,7 @@ export class WorkflowProcessorService {
     console.info(`encoded method data: ${methodData}`);
     const target = contract.address
     console.info(`target conract: ${target}`);
-    console.info(`wallet address: ${instance.workflow.wallet.address}`);
+    console.info(`wallet address: ${instance.workflow.walletAddress}`);
     const tx = {
       to: target,
       data: methodData,

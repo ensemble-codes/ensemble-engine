@@ -1,4 +1,4 @@
-import { Controller, Post, Request, Param, Get, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Controller, Post, Request, Param, Get, NotFoundException, ForbiddenException, Body } from '@nestjs/common';
 import { WalletsService } from 'libs/shared/src/wallets/wallets.service';
 import { Wallet } from 'libs/shared/src/wallets/schemas/wallet.schema';
 // import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -8,8 +8,8 @@ export class WalletsController {
   constructor(private readonly walletsService: WalletsService) {}
 
   @Post()
-  create(@Request() req) {
-    return this.walletsService.create(req.user.userId);
+  create(@Request() req, @Body() body: { type: string }) {
+    return this.walletsService.create(req.user.userId, body.type);
   }
 
   @Post(':address')

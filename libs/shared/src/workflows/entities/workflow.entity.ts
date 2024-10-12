@@ -3,12 +3,10 @@
 import { ContractEntity } from './contract.entity';
 import { Step } from './step.entity'; 
 
-import { WalletEntity } from './wallet.entity';
-
 export class Workflow {
   name: string;
   version: string;
-  wallet: WalletEntity;
+  walletAddress: string;
   trigger: string;
   steps: [ Step ];
   contracts: [ ContractEntity ];

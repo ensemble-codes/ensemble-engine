@@ -83,7 +83,7 @@ export class WorkflowInstanceEntity {
   }
 
   getWalletAddress(): string {
-    return this.workflow.wallet.address
+    return this.workflow.walletAddress
   }
 
   getContext(): WorkflowContext {
