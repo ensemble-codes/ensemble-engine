@@ -11,6 +11,7 @@ import { TransactionsManagerService } from '../transactions/transactions-manager
 import { WorkflowInstanceEntity } from 'libs/shared/src/workflows/entities/instance.entity';
 import { Contract } from 'ethers';
 import { ModulesManagerService } from '../modules/manager/modules-manager.service';
+import { CircleService } from 'libs/shared/src/workflows/circle/circle.service';
 
 @Injectable()
 export class WorkflowProcessorService {
@@ -18,7 +19,7 @@ export class WorkflowProcessorService {
   constructor(
     private readonly workflowInstancesService: WorkflowInstancesService,
     private readonly providerService: BlockchainProviderService,
-    private readonly dexService: DexService,
+    private readonly circleService: CircleService,
     private readonly triggerService: TriggersService,
     private readonly conditionsService: ConditionsService,
     private readonly transactionsManagerService: TransactionsManagerService,
@@ -124,8 +125,8 @@ export class WorkflowProcessorService {
     };
 
     console.log(methodData)
-
-    this.transactionsManagerService.sendTransaction(tx, instance);
+    this.circleService.sendTransaction(instance.workflow.walletAddress, target, methodName, methodArgs);
+    // this.transactionsManagerService.sendTransaction(tx, instance);
   }
   encodeFunctionData(contract: Contract, methodName: string, methodArgs: any) {
     console.log({ methodArgs })
