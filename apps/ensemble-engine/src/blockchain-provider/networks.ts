@@ -1,9 +1,13 @@
-import { Network } from "./entities"
-
+import { Network } from './entities';
 
 const FUSE = {
   name: 'fuse',
   chainId: 122
+}
+
+const AVALANCHE_ETNA = {
+  name: 'avalanche_etna',
+  chainId: 43117
 }
 
 const AVALANCHE_FUJI = {
@@ -28,6 +32,7 @@ const SEPOLIA = {
 
 const map = {
   fuse: FUSE,
+  avalanche_etna: AVALANCHE_ETNA,
   avalanche_fuji: AVALANCHE_FUJI,
   op_sepolia: OP_SEPOLIA,
   base_sepolia: BASE_SEPOLIA,
