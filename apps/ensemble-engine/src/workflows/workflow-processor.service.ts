@@ -125,8 +125,8 @@ export class WorkflowProcessorService {
     };
 
     console.log(methodData)
-    this.circleService.sendTransaction(instance.workflow.walletAddress, target, methodName, methodArgs);
-    // this.transactionsManagerService.sendTransaction(tx, instance);
+    // this.circleService.sendTransaction(instance.workflow.walletAddress, target, methodName, methodArgs);
+    this.transactionsManagerService.sendTransaction(tx, instance);
   }
   encodeFunctionData(contract: Contract, methodName: string, methodArgs: any) {
     console.log({ methodArgs })

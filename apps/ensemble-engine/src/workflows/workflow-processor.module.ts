@@ -8,6 +8,7 @@ import { TriggersService } from './triggers.service';
 import { ConditionsService } from './conditions.service';
 import { TransactionsManagerModule } from '../transactions/transactions-manager.module';
 import { ModulesModule } from '../modules/manager/modules.module';
+import { CircleModule } from 'libs/shared/src/workflows/circle/circle.module';
 @Module({
   imports: [
     WorkflowsModule,
@@ -15,7 +16,8 @@ import { ModulesModule } from '../modules/manager/modules.module';
     AbiModule,
     DexModule,
     TransactionsManagerModule,
-    ModulesModule
+    ModulesModule,
+    CircleModule
   ],
   providers: [TriggersService, WorkflowProcessorService, ConditionsService],
 })
