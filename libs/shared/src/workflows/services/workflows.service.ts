@@ -19,6 +19,7 @@ export class WorkflowsService {
     console.info(`creating workflow with ownerId: ${ownerId} and dto: ${createWorkflowDto}`)
     return this.workflowModel.create({
       ...createWorkflowDto,
+      walletAddress: createWorkflowDto.wallet,
       owner: ownerId
     });
   }

@@ -1,5 +1,4 @@
 import { IsString, IsObject, IsArray, IsNotEmpty, IsOptional } from 'class-validator';
-import { WalletEntity } from 'libs/shared/src/workflows/entities/wallet.entity';
 import { Step } from 'libs/shared/src/workflows/entities/step.entity';
 import { ContractEntity } from 'libs/shared/src/workflows/entities/contract.entity';
 
@@ -8,9 +7,9 @@ export class CreateWorkflowDto {
   @IsNotEmpty()
   name: string;
 
-  @IsObject()
+  @IsString()
   @IsNotEmpty()
-  wallet: WalletEntity;
+  wallet: string;
 
   @IsArray()
   @IsNotEmpty()

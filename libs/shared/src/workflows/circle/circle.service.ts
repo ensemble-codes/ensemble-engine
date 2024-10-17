@@ -6,38 +6,38 @@ export class CircleService {
   private client: ReturnType<typeof initiateDeveloperControlledWalletsClient>;
 
   constructor() {
-    // console.log(`initializing circle client with api key ${process.env.CIRCLE_API_KEY} and entity secret ${process.env.CIRCLE_ENTITY_SECRET}`)
+    console.log(`initializing circle client with api key ${process.env.CIRCLE_API_KEY} and entity secret ${process.env.CIRCLE_ENTITY_SECRET}`)
     this.client = initiateDeveloperControlledWalletsClient({
       apiKey: process.env.CIRCLE_API_KEY,
       entitySecret: process.env.CIRCLE_ENTITY_SECRET
     });
-    this.init()
-    
   }
 
-  async init() {
-    const response = await this.client.getPublicKey()
-    const pem = response.data.publicKey
-    
-    const forge = require('node-forge')
-
-    const entitySecret = forge.util.hexToBytes('YOUR_ENTITY_SECRET');
-
-    const publicKey = forge.pki.publicKeyFromPem(pem);
-
-    const encryptedData = publicKey.encrypt(entitySecret, 'RSA-OAEP', { md: forge.md.sha256.create(), mgf1: { md: forge.md.sha256.create(), }, });
-
-    console.log(forge.util.encode64(encryptedData)) 
-
-
-  }
-
-  async createWallet(walletSetId: string) {
+  async createWallet() {
+    console.log(`creating circle wallet`)
     const response = await this.client.createWallets({
       blockchains: ['ETH-SEPOLIA'],
       count: 1,
-      walletSetId: walletSetId
+      walletSetId: process.env.CIRCLE_WALLET_SET_ID
     });
-    return response[0];
+    const wallet = response.data.wallets[0]
+    console.log(`wallet created: ${JSON.stringify(wallet)}`)
+    return { address: wallet.address, groupId: wallet.walletSetId };
+  }
+
+  async sendTransaction(walletId: string, contractAddress: string, methotdArgs, methodArgs: any[]) {
+    const response = await this.client.createContractExecutionTransaction({
+      walletId,
+      contractAddress,
+      abiFunctionSignature: methotdArgs,
+      abiParameters: methodArgs,
+      fee: {
+        type: 'level',
+        config: {
+          feeLevel: 'MEDIUM'
+        }
+      }
+    });
+    return response;
   }
 }

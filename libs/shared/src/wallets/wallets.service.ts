@@ -24,12 +24,12 @@ export class WalletsService {
    * @returns {string} The identifier for the group of created wallets. This identifier can be used to retrieve the group.
    */
   async create(ownerId: string, walletType: string = 'internal') {
-    const groupId = generateId()
+    
     const wallet = EthersWallet.createRandom()
     if (walletType === 'internal') {
       console.log(`generating local wallet with address ${wallet.address}`)
       const newWallet = new this.walletModel({
-        groupId,
+        groupId: generateId(),
         address: wallet.address,
         privateKey: wallet.privateKey,
         owner: ownerId
@@ -37,11 +37,10 @@ export class WalletsService {
       return newWallet.save();
     } else if (walletType === 'circle') {
       console.log(`generating circle wallet`)
-      const circleWallet = await this.circleService.createWallet(groupId)
+      const { address, groupId } = await this.circleService.createWallet()
       const newWallet = new this.walletModel({
         groupId,
-        address: circleWallet.address,
-        privateKey: wallet.privateKey,
+        address,
         owner: ownerId,
         type: 'circle'
       });
