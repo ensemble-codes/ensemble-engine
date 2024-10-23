@@ -1,7 +1,17 @@
-import { Controller, Get, Post, Body, Param, Delete, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  NotFoundException,
+  UseGuards,
+} from '@nestjs/common';
 import { AbiService } from './abi.service';
 import { CreateAbiDto } from './dto/create-abi.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('abi')
 export class AbiController {
   constructor(private readonly abiService: AbiService) {}
