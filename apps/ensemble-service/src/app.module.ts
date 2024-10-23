@@ -13,7 +13,7 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
     WorkflowsModule,
     WalletsModule,
-    AbiModule
+    AbiModule,
   ],
   controllers: [],
   providers: [],

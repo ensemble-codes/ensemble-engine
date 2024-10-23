@@ -14,10 +14,12 @@ import { UsersModule } from 'apps/ensemble-service/users/users.module';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        return ({
+        return {
           secret: configService.get<string>('JWT_SECRET'),
-          signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES_IN') },
-        })
+          signOptions: {
+            expiresIn: configService.get<string>('JWT_EXPIRES_IN'),
+          },
+        };
       },
       inject: [ConfigService],
     }),

@@ -1,16 +1,36 @@
-import { Controller, Get, Post, Request, Body, Param, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Request,
+  Body,
+  Param,
+  NotFoundException,
+  ForbiddenException,
+  UseGuards,
+} from '@nestjs/common';
 import { WorkflowsService } from 'libs/shared/src/workflows/services/workflows.service';
 import { WorkflowInstancesService } from 'libs/shared/src/workflows/services/instances.service';
 import { CreateWorkflowInstanceDto } from 'libs/shared/src/workflows/dto/create-instance.dto';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('instances')
 export class WorkflowInstancesController {
-  constructor(private readonly workflowsService: WorkflowsService,
-    private readonly workflowInstancesService: WorkflowInstancesService) {}
+  constructor(
+    private readonly workflowsService: WorkflowsService,
+    private readonly workflowInstancesService: WorkflowInstancesService,
+  ) {}
 
   @Post()
-  async create(@Request() req, @Body() createWorkflowInstanceDto: CreateWorkflowInstanceDto) {
-    return this.workflowInstancesService.create(req.user.userId, createWorkflowInstanceDto);
+  async create(
+    @Request() req,
+    @Body() createWorkflowInstanceDto: CreateWorkflowInstanceDto,
+  ) {
+    return this.workflowInstancesService.create(
+      req.user.userId,
+      createWorkflowInstanceDto,
+    );
   }
 
   @Get()
@@ -30,10 +50,14 @@ export class WorkflowInstancesController {
       throw new NotFoundException('Wallet not found');
     }
     if (workflowInstance.owner?.toString() !== req.user.userId) {
-      console.warn(`You are not authorized to access this workflow instance. wallet.owner: ${typeof workflowInstance.owner}, user.id: ${typeof req.user.userId}`)
-      throw new ForbiddenException('You are not authorized to access this wallet');
+      console.warn(
+        `You are not authorized to access this workflow instance. wallet.owner: ${typeof workflowInstance.owner}, user.id: ${typeof req.user.userId}`,
+      );
+      throw new ForbiddenException(
+        'You are not authorized to access this wallet',
+      );
     }
-    return workflowInstance
+    return workflowInstance;
   }
 
   @Get('apply/:id')
@@ -41,7 +65,7 @@ export class WorkflowInstancesController {
     console.log('id', id);
     return this.workflowInstancesService.findAndApply(id);
   }
-  
+
   @Post('start/:id')
   async start(@Param('id') id) {
     return this.workflowInstancesService.start(id);

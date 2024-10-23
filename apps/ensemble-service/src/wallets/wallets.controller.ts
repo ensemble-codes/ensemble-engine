@@ -1,9 +1,20 @@
-import { Controller, Post, Request, Param, Get, NotFoundException, ForbiddenException, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Request,
+  Param,
+  Get,
+  NotFoundException,
+  ForbiddenException,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
 import { WalletsService } from 'libs/shared/src/wallets/wallets.service';
 import { Wallet } from 'libs/shared/src/wallets/schemas/wallet.schema';
-// import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('wallets')
+@UseGuards(JwtAuthGuard)
 export class WalletsController {
   constructor(private readonly walletsService: WalletsService) {}
 
@@ -24,8 +35,12 @@ export class WalletsController {
       throw new NotFoundException('Wallet not found');
     }
     if (wallet.owner?.toString() !== req.user.userId) {
-      console.warn(`You are not authorized to access this wallet. wallet.owner: ${typeof wallet.owner}, user.id: ${typeof req.user.userId}`)
-      throw new ForbiddenException('You are not authorized to access this wallet');
+      console.warn(
+        `You are not authorized to access this wallet. wallet.owner: ${typeof wallet.owner}, user.id: ${typeof req.user.userId}`,
+      );
+      throw new ForbiddenException(
+        'You are not authorized to access this wallet',
+      );
     }
     return wallet;
   }
@@ -34,15 +49,15 @@ export class WalletsController {
   async findWalletsByOwner(@Request() req): Promise<Wallet[]> {
     return this.walletsService.findWalletsByOwner(req.user.userId);
   }
-    
-    // if (!wallet) {
-    //   throw new NotFoundException('Wallet not found');
-    // }
-    // if (wallet.owner?.toString() !== req.user.userId) {
-    //   console.warn(`You are not authorized to access this wallet. wallet.owner: ${typeof wallet.owner}, user.id: ${typeof req.user.userId}`)
-    //   throw new ForbiddenException('You are not authorized to access this wallet');
-    // }
-    // return wallet;
+
+  // if (!wallet) {
+  //   throw new NotFoundException('Wallet not found');
+  // }
+  // if (wallet.owner?.toString() !== req.user.userId) {
+  //   console.warn(`You are not authorized to access this wallet. wallet.owner: ${typeof wallet.owner}, user.id: ${typeof req.user.userId}`)
+  //   throw new ForbiddenException('You are not authorized to access this wallet');
+  // }
+  // return wallet;
   // }
 
   @Get('group/:groupId')
