@@ -81,9 +81,13 @@ export class TriggersService {
   }
 
   async checkPeriodicTrigger(trigger: Trigger, instance: WorkflowInstanceEntity) {
+    const network = instance.getCurrentNetwork();
+    const latestBlock = await this.conditionsService.fetchLatestBlock(network);
+    console.log(`Latest block for network ${network}: ${latestBlock}`);
     const now = new Date();
     const snapshot = {
       name: trigger.name,
+      blockNumber: latestBlock,
       lastExecution: new Date(),
     }
     const oldSnapshot = await this.workflowInstancesService.storeTriggerSnapsot(instance.id, snapshot);

@@ -73,7 +73,8 @@ export class BalancesService {
 
   }
 
-  async getTokenHolders(timestamp: Date): Promise<{ accountAddress: string, balance: number }[]> {
+  async getTokenHolders(timestamp: Date, tokenHoldersFilter?: string[]): Promise<{ accountAddress: string, balance: number }[]> {
+    const matchFilter = tokenHoldersFilter && tokenHoldersFilter.length > 0 ? { accountAddress: { $in: tokenHoldersFilter } } : {};
     return this.balanceModel.aggregate([
       { $match: { timestamp: { $lte: timestamp } } },
       { $sort: { accountAddress: 1, timestamp: -1 } },
@@ -85,6 +86,7 @@ export class BalancesService {
       },
       { $replaceRoot: { newRoot: "$latestBalance" } },
       { $match: { balance: { $gt: 0 } } },
+      { $match: matchFilter },
       { $project: { _id: 0, accountAddress: 1, balance: 1 } }
     ]).exec();
   }

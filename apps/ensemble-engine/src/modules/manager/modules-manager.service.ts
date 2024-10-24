@@ -37,7 +37,14 @@ export class ModulesManagerService {
         
         const triggerSnapshot = instance.getTriggerSnapshot(step.trigger.name);
         console.log(`triggerSnapshot: ${JSON.stringify(triggerSnapshot)}`);
-        const startBlock = Number(triggerSnapshot ? triggerSnapshot.blockNumber : step.trigger.startBlock);
+        let startBlock = 0;
+        if (triggerSnapshot?.blockNumber) {
+          startBlock = Number(triggerSnapshot.blockNumber);
+
+        } else {
+          startBlock = Number(step.trigger.startBlock);
+        }
+        // const startBlock = Number(triggerSnapshot ? triggerSnapshot.blockNumber : step.trigger.startBlock);
         console.log(`snapshot startBlock: ${startBlock}`);
         await this.snapshotModuleEntry.build({ ...snapshotArguments, startBlock}, instance);
         console.log(`module ${step.module} finished call ${step.method}`);
@@ -54,9 +61,9 @@ export class ModulesManagerService {
       const step = instance.getStep(0);
       const snapshotArguments: any = step.arguments;
       if (arg === '&latest-balances') {
-        return this.snapshotModuleEntry.getLatestBalances(snapshotArguments);
+        return this.snapshotModuleEntry.getLatestBalances(snapshotArguments.tokenAddress, instance.getCurrentNetwork());
       } else if (arg === '&latest-holders') {
-        return this.snapshotModuleEntry.getLatestHolders(snapshotArguments);
+        return this.snapshotModuleEntry.getLatestHolders(snapshotArguments.tokenAddress, instance.getCurrentNetwork());
       }
     }
   }

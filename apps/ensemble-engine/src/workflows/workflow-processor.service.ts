@@ -142,6 +142,16 @@ export class WorkflowProcessorService {
 
   async fetchFeedsForMethodsArgs(methodArgs: string[], instance: WorkflowInstanceEntity): Promise<any[]> {
     const finalMethodArgs = await Promise.all(methodArgs.map(async (arg: any) => {
+
+      if (typeof arg === 'object' && arg !== null && !Array.isArray(arg)) {
+        const key = Object.keys(arg)[0];
+        const value = Object.values(arg)[0];
+        // return value;
+        if (typeof value === 'string' && value.startsWith('&')) {
+          const nValue = await this.modulesManagerService.fetchFeed(instance, arg);
+          return { [key]: nValue };
+        }
+      }
       if (typeof arg === 'string' && arg.startsWith('&')) {
         const fetchedArg = await this.modulesManagerService.fetchFeed(instance, arg);
         return fetchedArg;

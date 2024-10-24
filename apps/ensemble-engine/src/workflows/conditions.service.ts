@@ -39,17 +39,15 @@ export class ConditionsService {
     const firstEvent = contract.interface.parseLog(firstLog);
     console.log(`first log: ${JSON.stringify(firstLog)}`);
     console.log(`first event: ${JSON.stringify(firstEvent)}`);
-    // console.log("Contract Interface Functions: ", contract.interface.functions);
-// console.log("Contract Interface Events: ", contract.interface.events);
-
-    // contract.abi
-    // const evenntFilter = {
-    //   address: trigger.contract,
-    //   topics: [trigger.event]
-    // }
-    // const events = await this.providerService.fetchEvents(trigger.contract, trigger.network, JSON.stringify(evenntFilter), trigger.fromBlock, trigger.toBlock);
-    // console.log(`condition for trigger ${trigger.name} fetched. Value: ${value}`);
     return { log: firstLog, event: firstEvent };
+  }
+
+  async fetchLatestBlock(network: string): Promise<number> {
+    console.log(`Fetching latest block for network: ${network}`);
+    const provider = this.providerService.getProvider(network);
+    const latestBlock = await provider.getBlockNumber();
+    console.log(`Latest block for network ${network}: ${latestBlock}`);
+    return latestBlock;
   }
 
 

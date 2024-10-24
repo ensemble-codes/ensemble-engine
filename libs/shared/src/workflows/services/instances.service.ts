@@ -106,6 +106,7 @@ export class WorkflowInstancesService {
     // reset the instance to the initial state
     instance.currentStepIndex = 0;
     instance.triggerSnapshots = new Map<string, TriggerSnapshot>();
+    instance.isProcessing = false;
     await instance.save();
     console.log('instance', instance);
     return instance;
@@ -147,7 +148,7 @@ export class WorkflowInstancesService {
     instance.currentStepIndex++;
     if (instance.currentStepIndex >= instance.workflow.steps.length) {
       console.log(`Instance ${instance.id} has completed all steps. Setting status to completed.`);
-      instance.status = 'completed';
+      // instance.status = 'completed';
       instance.currentStepIndex = 0;
       instance.completedAt = new Date();
     }
