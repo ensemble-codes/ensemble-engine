@@ -16,7 +16,8 @@ export class BlockchainProviderService {
     base_sepolia: process.env.PROVIDER_URL_BASE_SEPOLIA,
     op_sepolia: process.env.PROVIDER_URL_OP_SEPOLIA,
     avalanche_fuji: process.env.PROVIDER_URL_AVALANCHE_FUJI,
-  };
+    avalanche_etna: process.env.PROVIDER_URL_AVALANCHE_ETNA,
+  }
 
   constructor(private readonly abiService: AbiService) {
     for (const [network, url] of Object.entries(this.networkUrls)) {

@@ -5,6 +5,11 @@ const FUSE = {
   chainId: 122,
 };
 
+const AVALANCHE_ETNA = {
+  name: 'avalanche_etna',
+  chainId: 43117
+}
+
 const AVALANCHE_FUJI = {
   name: 'avalanche_fuji',
   chainId: 43113,
@@ -27,6 +32,7 @@ const SEPOLIA = {
 
 const map = {
   fuse: FUSE,
+  avalanche_etna: AVALANCHE_ETNA,
   avalanche_fuji: AVALANCHE_FUJI,
   op_sepolia: OP_SEPOLIA,
   base_sepolia: BASE_SEPOLIA,
