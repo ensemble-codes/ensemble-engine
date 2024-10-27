@@ -5,11 +5,7 @@ import { DexModule } from '../dex/dex.module';
 import { SnapshotsModule } from '../snapshots/snapshots.module';
 
 @Module({
-  imports: [
-    DividentsModule,
-    DexModule,
-    SnapshotsModule
-  ],
+  imports: [DividentsModule, DexModule, SnapshotsModule],
   providers: [ModulesManagerService],
   exports: [ModulesManagerService],
 })

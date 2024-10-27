@@ -1,6 +1,7 @@
-
-export function traverseAndInterpolate(obj: any, params: Map<string, string>): any {
-
+export function traverseAndInterpolate(
+  obj: any,
+  params: Map<string, string>,
+): any {
   if (typeof obj === 'string') {
     // console.log('obj', obj);
     return obj.replace(/\$\w+/g, (match) => {
@@ -14,7 +15,7 @@ export function traverseAndInterpolate(obj: any, params: Map<string, string>): a
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(item => traverseAndInterpolate(item, params));
+    return obj.map((item) => traverseAndInterpolate(item, params));
   }
 
   if (typeof obj === 'object' && obj !== null) {
@@ -31,4 +32,3 @@ export function traverseAndInterpolate(obj: any, params: Map<string, string>): a
 
   return obj;
 }
-

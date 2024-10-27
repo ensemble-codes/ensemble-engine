@@ -1,4 +1,3 @@
-
 export class ContractEntity {
   name: string;
   address: string;

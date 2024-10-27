@@ -2,9 +2,8 @@ import { IsString, IsNumber } from 'class-validator';
 import { Dex, Token } from '../entities';
 
 export class CreateTradeDto {
-  
   readonly tokenIn: Token;
-  
+
   readonly tokenOut: Token;
 
   @IsString()
@@ -13,5 +12,4 @@ export class CreateTradeDto {
   readonly dex: Dex;
 
   readonly receiverAddress: string;
-
 }

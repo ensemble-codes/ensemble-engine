@@ -74,22 +74,24 @@ export class WorkflowInstanceEntity {
 
   getCurrentNetwork(): string | null {
     const currentStep = this.workflow.steps[this.currentStepIndex];
-    
+
     if (currentStep && currentStep.network) {
       return currentStep.network;
     }
-    console.warn(`No network found for workflow ${this.id}, step ${this.currentStepIndex}`)
+    console.warn(
+      `No network found for workflow ${this.id}, step ${this.currentStepIndex}`,
+    );
     return null; // Return null if no network is available for the current step
   }
 
   getWalletAddress(): string {
-    return this.workflow.walletAddress
+    return this.workflow.walletAddress;
   }
 
   getContext(): WorkflowContext {
     return {
       network: this.getCurrentNetwork(),
-      walletAddress: this.getWalletAddress()
-    }
+      walletAddress: this.getWalletAddress(),
+    };
   }
 }

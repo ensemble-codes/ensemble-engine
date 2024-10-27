@@ -30,67 +30,94 @@ export class TriggersService {
     }
   }
 
-  async checkContactTrigger(trigger: Trigger, instance: WorkflowInstanceEntity) {
-    const data = await this.conditionsService.fetchCondition(trigger, instance.workflow.contracts);
+  async checkContactTrigger(
+    trigger: Trigger,
+    instance: WorkflowInstanceEntity,
+  ) {
+    const data = await this.conditionsService.fetchCondition(
+      trigger,
+      instance.workflow.contracts,
+    );
     // fetchTriggerData(trigger, instance);
 
     const snapshot = {
       name: trigger.name,
       data,
-      lastExecution: new Date()
-    }
-    
-    const oldSnapshot = await this.workflowInstancesService.storeTriggerSnapsot(instance.id, snapshot);
+      lastExecution: new Date(),
+    };
 
-    const isUpdated = !oldSnapshot || oldSnapshot.data.toString() !== snapshot.data.toString();
-    console.log(`Trigger ${trigger.name} is ${!isUpdated ? 'not' : ''} updated. check dont at ${snapshot.lastExecution}`);
+    const oldSnapshot = await this.workflowInstancesService.storeTriggerSnapsot(
+      instance.id,
+      snapshot,
+    );
 
-    return isUpdated
+    const isUpdated =
+      !oldSnapshot || oldSnapshot.data.toString() !== snapshot.data.toString();
+    console.log(
+      `Trigger ${trigger.name} is ${!isUpdated ? 'not' : ''} updated. check dont at ${snapshot.lastExecution}`,
+    );
+
+    return isUpdated;
   }
 
-
   async checkEventTrigger(trigger: Trigger, instance: WorkflowInstanceEntity) {
-
     const oldSnapshot = instance.getTriggerSnapshot(trigger.name);
 
-    let fromBlock = Number(oldSnapshot ? oldSnapshot.blockNumber : trigger.startBlock);
+    let fromBlock = Number(
+      oldSnapshot ? oldSnapshot.blockNumber : trigger.startBlock,
+    );
     if (fromBlock === 0) {
       console.warn(`Using startBlock ${trigger.startBlock} as fromBlock`);
       fromBlock = trigger.startBlock;
     }
-    const network = instance.getCurrentNetwork()
-    const { log, event } = await this.conditionsService.fetchEventCondition(trigger, instance.workflow.contracts, network, fromBlock);
+    const network = instance.getCurrentNetwork();
+    const { log, event } = await this.conditionsService.fetchEventCondition(
+      trigger,
+      instance.workflow.contracts,
+      network,
+      fromBlock,
+    );
 
     const snapshot = {
       name: trigger.name,
       event,
       blockNumber: log.blockNumber,
       params: event.args,
-      lastExecution: new Date()
-    }
+      lastExecution: new Date(),
+    };
 
-    await this.workflowInstancesService.storeTriggerSnapsot(instance.id, snapshot);
+    await this.workflowInstancesService.storeTriggerSnapsot(
+      instance.id,
+      snapshot,
+    );
 
-    const isUpdated = !!event
-    console.log(`Trigger ${trigger.name} is ${!isUpdated ? 'not' : ''} updated. check dont at ${snapshot.lastExecution}`);
+    const isUpdated = !!event;
+    console.log(
+      `Trigger ${trigger.name} is ${!isUpdated ? 'not' : ''} updated. check dont at ${snapshot.lastExecution}`,
+    );
 
-
-    return isUpdated
-
-
+    return isUpdated;
   }
 
-  async checkPeriodicTrigger(trigger: Trigger, instance: WorkflowInstanceEntity) {
+  async checkPeriodicTrigger(
+    trigger: Trigger,
+    instance: WorkflowInstanceEntity,
+  ) {
     const now = new Date();
     const snapshot = {
       name: trigger.name,
       lastExecution: new Date(),
-    }
-    const oldSnapshot = await this.workflowInstancesService.storeTriggerSnapsot(instance.id, snapshot);
+    };
+    const oldSnapshot = await this.workflowInstancesService.storeTriggerSnapsot(
+      instance.id,
+      snapshot,
+    );
     const isUpdated = this.periodicCheck(trigger, now, oldSnapshot);
 
-    console.log(`Trigger ${trigger.name} check on ${snapshot.lastExecution}. isUpdated: ${isUpdated}`);
-    return isUpdated
+    console.log(
+      `Trigger ${trigger.name} check on ${snapshot.lastExecution}. isUpdated: ${isUpdated}`,
+    );
+    return isUpdated;
   }
 
   periodicCheck(trigger: Trigger, now: Date, oldSnapshot: TriggerSnapshot) {

@@ -5,20 +5,20 @@ export type WalletDocument = Wallet & Document;
 
 @Schema({ timestamps: true })
 export class Wallet {
-    @Prop({ required: true })
-    groupId: string;
+  @Prop({ required: true })
+  groupId: string;
 
-    @Prop({ required: true, unique: true })
-    address: string;
+  @Prop({ required: true, unique: true })
+  address: string;
 
-    @Prop({ select: false })
-    privateKey: string;
+  @Prop({ select: false })
+  privateKey: string;
 
-    @Prop({ required: true, default: 'local'})
-    type: string
+  @Prop({ required: true, default: 'local' })
+  type: string;
 
-    @Prop({ type: 'ObjectId', ref: 'User', required: true })
-    owner: Types.ObjectId;
+  @Prop({ type: 'ObjectId', ref: 'User', required: true })
+  owner: Types.ObjectId;
 }
 
 export const WalletSchema = SchemaFactory.createForClass(Wallet);

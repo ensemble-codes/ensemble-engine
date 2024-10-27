@@ -6,30 +6,34 @@ import { WorkflowInstanceEntity } from 'libs/shared/src/workflows/entities/insta
 
 @Injectable()
 export class TransactionsManagerService {
-
   constructor(
     private readonly walletsService: WalletsService,
     private readonly providerService: BlockchainProviderService,
   ) {}
 
-  
   async sendTransaction(tx: any, workflowInstance: WorkflowInstanceEntity) {
-    const provider = this.providerService.getProvider(workflowInstance.getCurrentNetwork());
-    const wallet = await this.getSignerWallet(workflowInstance.getWalletAddress(), provider);
+    const provider = this.providerService.getProvider(
+      workflowInstance.getCurrentNetwork(),
+    );
+    const wallet = await this.getSignerWallet(
+      workflowInstance.getWalletAddress(),
+      provider,
+    );
 
     // Send the signed transaction
     try {
-      console.log(`Sending transaction: ${JSON.stringify(tx)}. from wallet: ${wallet.address}`);
+      console.log(
+        `Sending transaction: ${JSON.stringify(tx)}. from wallet: ${wallet.address}`,
+      );
       const txResponse = await wallet.sendTransaction(tx);
       console.log('Transaction sent:', txResponse.hash);
-  
+
       // Wait for the transaction to be mined
       const receipt = await txResponse.wait();
       console.log('Transaction mined:', receipt);
     } catch (error) {
       console.error('Error sending transaction:', error);
     }
-
   }
 
   async getSignerWallet(walletAddress: string, provider: any): Promise<Wallet> {
@@ -37,5 +41,4 @@ export class TransactionsManagerService {
     const signer = new Wallet(walletData.privateKey, provider);
     return signer;
   }
-  
 }

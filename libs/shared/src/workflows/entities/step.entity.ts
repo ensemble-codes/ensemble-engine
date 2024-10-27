@@ -1,4 +1,4 @@
-import { Trigger } from "./trigger.entity";
+import { Trigger } from './trigger.entity';
 
 export class Step {
   name: string;
@@ -8,5 +8,5 @@ export class Step {
   method: string;
   arguments: [string];
   trigger: Trigger;
-  prerequisites: [ Trigger ];
+  prerequisites: [Trigger];
 }

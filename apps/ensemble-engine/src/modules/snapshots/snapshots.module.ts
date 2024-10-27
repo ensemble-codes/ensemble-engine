@@ -10,11 +10,18 @@ import { BalancesService } from './services/balances.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Snapshot.name, schema: SnapshotSchema }]),
+    MongooseModule.forFeature([
+      { name: Snapshot.name, schema: SnapshotSchema },
+    ]),
     MongooseModule.forFeature([{ name: Balance.name, schema: BalanceSchema }]),
     BlockchainProviderModule,
   ],
-  providers: [SnapshotBuilderService, SnapshotModuleEntry, SnapshotsService, BalancesService],
+  providers: [
+    SnapshotBuilderService,
+    SnapshotModuleEntry,
+    SnapshotsService,
+    BalancesService,
+  ],
   exports: [SnapshotModuleEntry],
 })
 export class SnapshotsModule {}

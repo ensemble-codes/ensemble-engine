@@ -5,11 +5,9 @@ import { Abi, AbiSchema } from './schemas/abi.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: Abi.name, schema: AbiSchema }]),
-  ],
+  imports: [MongooseModule.forFeature([{ name: Abi.name, schema: AbiSchema }])],
   controllers: [AbiController],
   providers: [AbiService],
-  exports: [AbiService]
+  exports: [AbiService],
 })
 export class AbiModule {}

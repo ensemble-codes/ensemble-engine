@@ -3,7 +3,6 @@ import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Snapshot extends Document {
-  
   @Prop({ type: Date, default: Date.now })
   timestamp: Date;
 

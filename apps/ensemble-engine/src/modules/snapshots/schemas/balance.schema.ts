@@ -4,7 +4,6 @@ import { Network } from '../../../blockchain-provider/entities';
 
 @Schema({ timestamps: true })
 export class Balance extends Document {
-  
   @Prop({ required: true })
   balance: number;
 

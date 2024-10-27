@@ -5,13 +5,8 @@ import { TransactionsManagerService } from './transactions-manager.service';
 import { WalletsModule } from '../wallets/wallets.module';
 
 @Module({
-  imports: [
-    WorkflowsModule,
-    BlockchainProviderModule,
-    WalletsModule
-  ],
+  imports: [WorkflowsModule, BlockchainProviderModule, WalletsModule],
   providers: [TransactionsManagerService],
-  exports: [TransactionsManagerService]
+  exports: [TransactionsManagerService],
 })
-
 export class TransactionsManagerModule {}

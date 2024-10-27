@@ -17,9 +17,8 @@ import { CircleModule } from 'libs/shared/src/workflows/circle/circle.module';
     DexModule,
     TransactionsManagerModule,
     ModulesModule,
-    CircleModule
+    CircleModule,
   ],
   providers: [TriggersService, WorkflowProcessorService, ConditionsService],
 })
-
 export class WorkflowProcessorModule {}
