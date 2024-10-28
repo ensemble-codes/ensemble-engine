@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { WorkflowInstance } from '../schemas/instance.schema';
@@ -9,26 +13,38 @@ import { Workflow } from '../entities/workflow.entity';
 
 @Injectable()
 export class WorkflowInstancesService {
-
   constructor(
-    @InjectModel(WorkflowInstance.name) private readonly workflowInstanceModel: Model<WorkflowInstance>,
-    private readonly workflowsService: WorkflowsService
+    @InjectModel(WorkflowInstance.name)
+    private readonly workflowInstanceModel: Model<WorkflowInstance>,
+    private readonly workflowsService: WorkflowsService,
   ) {}
 
   // Create a new workflow instance
-  async create(ownerId: string, createWorkflowInstanceDto: CreateWorkflowInstanceDto): Promise<WorkflowInstance> {
-    const workflow = await this.workflowsService.findOne(createWorkflowInstanceDto.workflowId);
+  async create(
+    ownerId: string,
+    createWorkflowInstanceDto: CreateWorkflowInstanceDto,
+  ): Promise<WorkflowInstance> {
+    const workflow = await this.workflowsService.findOne(
+      createWorkflowInstanceDto.workflowId,
+    );
     const workflowInstance = await this.workflowInstanceModel.create({
-       ...createWorkflowInstanceDto, workflow: workflow._id, owner: ownerId
-    })
+      ...createWorkflowInstanceDto,
+      workflow: workflow._id,
+      owner: ownerId,
+    });
 
-    return this.workflowInstanceModel.findById(workflowInstance._id).populate('workflow').exec();
-
+    return this.workflowInstanceModel
+      .findById(workflowInstance._id)
+      .populate('workflow')
+      .exec();
   }
 
   // Find all workflow instances
   async findAll(ownerId: any): Promise<WorkflowInstance[]> {
-    return this.workflowInstanceModel.find({ owner: ownerId }).populate('workflow').exec();
+    return this.workflowInstanceModel
+      .find({ owner: ownerId })
+      .populate('workflow')
+      .exec();
   }
 
   // Find a specific workflow instance by ID
@@ -43,12 +59,18 @@ export class WorkflowInstancesService {
     }
 
     const workflow = instance.workflow;
-    const appliedWorkflow = traverseAndInterpolate(workflow.toJSON(), instance.params);
+    const appliedWorkflow = traverseAndInterpolate(
+      workflow.toJSON(),
+      instance.params,
+    );
     return appliedWorkflow;
   }
 
   // Update a workflow instance
-  async storeTriggerSnapsot(id: string, snapshot: TriggerSnapshot): Promise<TriggerSnapshot> {
+  async storeTriggerSnapsot(
+    id: string,
+    snapshot: TriggerSnapshot,
+  ): Promise<TriggerSnapshot> {
     const instance = await this.findOne(id);
     if (!instance) {
       throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
@@ -72,7 +94,9 @@ export class WorkflowInstancesService {
       throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
     }
     if (instance.status === 'running') {
-      throw new BadRequestException(`WorkflowInstance with ID ${id} is already running`);
+      throw new BadRequestException(
+        `WorkflowInstance with ID ${id} is already running`,
+      );
     }
     instance.status = 'running';
     instance.startedAt = new Date();
@@ -86,7 +110,9 @@ export class WorkflowInstancesService {
       throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
     }
     if (instance.status !== 'running') {
-      throw new BadRequestException(`WorkflowInstance with ID ${id} is not running`);
+      throw new BadRequestException(
+        `WorkflowInstance with ID ${id} is not running`,
+      );
     }
     instance.status = 'stopped';
     instance.completedAt = new Date();
@@ -99,8 +125,14 @@ export class WorkflowInstancesService {
     if (!instance) {
       throw new NotFoundException(`WorkflowInstance with ID ${id} not found`);
     }
-    if (instance.status == 'stopped' || instance.status === 'completed'|| instance.status === 'pending') {
-      throw new BadRequestException(`WorkflowInstance with ID ${id} cannot be reset with status ${instance.status}`);
+    if (
+      instance.status == 'stopped' ||
+      instance.status === 'completed' ||
+      instance.status === 'pending'
+    ) {
+      throw new BadRequestException(
+        `WorkflowInstance with ID ${id} cannot be reset with status ${instance.status}`,
+      );
     }
 
     // reset the instance to the initial state
@@ -112,7 +144,10 @@ export class WorkflowInstancesService {
   }
 
   async findByStatus(status: string): Promise<WorkflowInstance[]> {
-    return this.workflowInstanceModel.find({ status }).populate('workflow').exec();
+    return this.workflowInstanceModel
+      .find({ status })
+      .populate('workflow')
+      .exec();
   }
   // Update a workflow instance
   async update(id: string, updateWorkflowInstanceDto: any) {
@@ -146,7 +181,9 @@ export class WorkflowInstancesService {
     instance.isProcessing = false;
     instance.currentStepIndex++;
     if (instance.currentStepIndex >= instance.workflow.steps.length) {
-      console.log(`Instance ${instance.id} has completed all steps. Setting status to completed.`);
+      console.log(
+        `Instance ${instance.id} has completed all steps. Setting status to completed.`,
+      );
       instance.status = 'completed';
       instance.currentStepIndex = 0;
       instance.completedAt = new Date();
@@ -161,16 +198,17 @@ export class WorkflowInstancesService {
     if (!instance.startProcessingAt || !instance.isProcessing) {
       return true;
     }
-    const processingDuration = new Date().getTime() - instance.startProcessingAt.getTime();
+    const processingDuration =
+      new Date().getTime() - instance.startProcessingAt.getTime();
     const isSafe = processingDuration > PROCESSING_TIMEOUT;
-    console.log(`Processing duration: ${processingDuration} ms, timeout is ${PROCESSING_TIMEOUT} ms. Is safe to stop: ${isSafe}`);
+    console.log(
+      `Processing duration: ${processingDuration} ms, timeout is ${PROCESSING_TIMEOUT} ms. Is safe to stop: ${isSafe}`,
+    );
     return isSafe;
   }
 }
 
-
 function traverseAndInterpolate(obj: any, params: Map<string, string>): any {
-
   if (typeof obj === 'string') {
     // console.log('obj', obj);
     return obj.replace(/\$\w+/g, (match) => {
@@ -184,7 +222,7 @@ function traverseAndInterpolate(obj: any, params: Map<string, string>): any {
   }
 
   if (Array.isArray(obj)) {
-    return obj.map(item => traverseAndInterpolate(item, params));
+    return obj.map((item) => traverseAndInterpolate(item, params));
   }
 
   if (typeof obj === 'object' && obj !== null) {

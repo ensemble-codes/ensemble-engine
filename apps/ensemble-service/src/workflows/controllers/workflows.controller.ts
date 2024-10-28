@@ -1,8 +1,22 @@
-import { Controller, Get, Post, Request, Body, Put, Param, Delete, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Request,
+  Body,
+  Put,
+  Param,
+  Delete,
+  NotFoundException,
+  ForbiddenException,
+  UseGuards,
+} from '@nestjs/common';
 import { WorkflowsService } from 'libs/shared/src/workflows/services/workflows.service';
 import { CreateWorkflowDto } from 'libs/shared/src/workflows/dto/create-workflow.dto';
 import { UpdateWorkflowDto } from 'libs/shared/src/workflows/dto/update-workflow.dto';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('workflows')
 export class WorkflowsController {
   constructor(private readonly workflowsService: WorkflowsService) {}
@@ -24,14 +38,21 @@ export class WorkflowsController {
       throw new NotFoundException('Wallet not found');
     }
     if (workflow.owner?.toString() !== req.user.userId) {
-      console.warn(`You are not authorized to access this workflow. workflow.owner: ${typeof workflow.owner}, user.id: ${typeof req.user.userId}`)
-      throw new ForbiddenException('You are not authorized to access this workflow');
+      console.warn(
+        `You are not authorized to access this workflow. workflow.owner: ${typeof workflow.owner}, user.id: ${typeof req.user.userId}`,
+      );
+      throw new ForbiddenException(
+        'You are not authorized to access this workflow',
+      );
     }
-    return workflow
+    return workflow;
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateWorkflowDto: UpdateWorkflowDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateWorkflowDto: UpdateWorkflowDto,
+  ) {
     return this.workflowsService.update(id, updateWorkflowDto);
   }
 

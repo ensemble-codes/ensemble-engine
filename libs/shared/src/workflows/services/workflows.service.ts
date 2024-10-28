@@ -4,46 +4,48 @@ import { Model } from 'mongoose';
 
 import { CreateWorkflowDto } from '../dto/create-workflow.dto';
 import { UpdateWorkflowDto } from '../dto/update-workflow.dto';
-import { Workflow } from '../entities/workflow.entity'
-import { Workflow as WorkflowDocument  } from '../schemas/workflow.schema';
-
+import { Workflow } from '../entities/workflow.entity';
+import { Workflow as WorkflowDocument } from '../schemas/workflow.schema';
 
 @Injectable()
 export class WorkflowsService {
-
   constructor(
-    @InjectModel(Workflow.name) private readonly workflowModel: Model<WorkflowDocument>,
+    @InjectModel(Workflow.name)
+    private readonly workflowModel: Model<WorkflowDocument>,
   ) {}
 
   create(ownerId: string, createWorkflowDto: CreateWorkflowDto) {
-    console.info(`creating workflow with ownerId: ${ownerId} and dto: ${createWorkflowDto}`)
+    console.info(
+      `creating workflow with ownerId: ${ownerId} and dto: ${createWorkflowDto}`,
+    );
     return this.workflowModel.create({
       ...createWorkflowDto,
       walletAddress: createWorkflowDto.wallet,
-      owner: ownerId
+      owner: ownerId,
     });
   }
 
   findAll(ownerId: string) {
-    return this.workflowModel.find({
-      $or: [
-        { owner: ownerId },
-        { isPublic: true }
-      ]
-    }).exec();
+    return this.workflowModel
+      .find({
+        $or: [{ owner: ownerId }, { isPublic: true }],
+      })
+      .exec();
   }
 
-  findOne(id: string) : Promise<WorkflowDocument> {
+  findOne(id: string): Promise<WorkflowDocument> {
     return this.workflowModel.findById(id).exec();
   }
 
   findByName(name: string) {
     return this.workflowModel.findOne({ name }).exec();
   }
-  
+
   update(id: string, updateWorkflowDto: UpdateWorkflowDto) {
-    const newObject = this.workflowModel.findByIdAndUpdate(id, updateWorkflowDto).exec();
-    return newObject
+    const newObject = this.workflowModel
+      .findByIdAndUpdate(id, updateWorkflowDto)
+      .exec();
+    return newObject;
   }
 
   remove(id: string) {

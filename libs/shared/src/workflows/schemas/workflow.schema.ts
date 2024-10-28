@@ -1,11 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Step } from '../entities/step.entity'
-import { ContractEntity } from '../entities/contract.entity'
+import { Step } from '../entities/step.entity';
+import { ContractEntity } from '../entities/contract.entity';
 
 @Schema({ timestamps: true })
 export class Workflow extends Document {
-  
   @Prop({ type: String })
   name: string;
 

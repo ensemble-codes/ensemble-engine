@@ -15,7 +15,6 @@ import { CircleService } from 'libs/shared/src/workflows/circle/circle.service';
 
 @Injectable()
 export class WorkflowProcessorService {
-
   constructor(
     private readonly workflowInstancesService: WorkflowInstancesService,
     private readonly providerService: BlockchainProviderService,
@@ -31,12 +30,15 @@ export class WorkflowProcessorService {
   @Interval(10000)
   async loop() {
     console.log('start: WorkflorProcessor V2 loop');
-    const workflowInstanceDocs = await this.workflowInstancesService.findByStatus('running');
+    const workflowInstanceDocs =
+      await this.workflowInstancesService.findByStatus('running');
     for (const instanceDoc of workflowInstanceDocs) {
       console.log(`Processing instance ${instanceDoc.id}`);
 
       if (instanceDoc.isProcessing) {
-        console.log(`Instance ${instanceDoc.id} is already processing. Skipping.`);
+        console.log(
+          `Instance ${instanceDoc.id} is already processing. Skipping.`,
+        );
         continue;
         // if (await this.workflowInstancesService.isSafeToStop(instanceDoc.id)) {
         //   await this.workflowInstancesService.stopProcessing(instanceDoc.id);
@@ -45,10 +47,14 @@ export class WorkflowProcessorService {
         //   continue;
         // }
       }
-      const isStarted = await this.workflowInstancesService.startProcessing(instanceDoc.id);
+      const isStarted = await this.workflowInstancesService.startProcessing(
+        instanceDoc.id,
+      );
 
       if (!isStarted) {
-        console.log(`Instance ${instanceDoc.id} is already processing. Skipping.`);
+        console.log(
+          `Instance ${instanceDoc.id} is already processing. Skipping.`,
+        );
         continue;
       }
       const instanceEntity = new WorkflowInstanceEntity(
@@ -60,7 +66,6 @@ export class WorkflowProcessorService {
         instanceDoc.startedAt,
         instanceDoc.completedAt,
         instanceDoc.params,
-
       );
       const currentStep = instanceEntity.getCurrentStep();
       await this.processStep(currentStep, instanceEntity);
@@ -70,29 +75,39 @@ export class WorkflowProcessorService {
     console.log('end: WorkflorProcessor V2 loop');
   }
 
-
   async processStep(currentStep: Step, instance: WorkflowInstanceEntity) {
     const { trigger } = currentStep;
     if (!trigger) {
-      console.log(`No trigger for step ${currentStep.name}. Executing step immediately.`);
+      console.log(
+        `No trigger for step ${currentStep.name}. Executing step immediately.`,
+      );
       await this.executeStep(currentStep, instance);
       return;
     }
-    const isTriggered = await this.triggerService.checkTrigger(trigger, instance);
+    const isTriggered = await this.triggerService.checkTrigger(
+      trigger,
+      instance,
+    );
     if (isTriggered) {
-      console.log(`An update in trigger ${trigger.name} has been detected. Executing step ${currentStep.name}`);
+      console.log(
+        `An update in trigger ${trigger.name} has been detected. Executing step ${currentStep.name}`,
+      );
       await this.executeStep(currentStep, instance);
     }
   }
 
   async executeStep(step: Step, instance: WorkflowInstanceEntity) {
-    console.log(`Executing step ${step.name} for workflow with ID: ${instance.workflow.name}`);
-    console.debug({ arguments: step.arguments })
+    console.log(
+      `Executing step ${step.name} for workflow with ID: ${instance.workflow.name}`,
+    );
+    console.debug({ arguments: step.arguments });
     const isTrue = await this.checkPreconditions(step, instance);
     if (isTrue) {
       console.log(`Preconditions met for step: ${step.name}`);
     } else {
-      console.error(`Preconditions not met for step: %{step.name}. Skipping step`, );
+      console.error(
+        `Preconditions not met for step: %{step.name}. Skipping step`,
+      );
       return;
     }
 
@@ -102,17 +117,29 @@ export class WorkflowProcessorService {
       return;
     }
 
-    const contract = await this.providerService.loadContract(step.contract, instance.workflow.contracts);
+    const contract = await this.providerService.loadContract(
+      step.contract,
+      instance.workflow.contracts,
+    );
 
     const methodName = step.method;
-    const methodArgs = await this.fetchFeedsForMethodsArgs(step.arguments, instance);
+    const methodArgs = await this.fetchFeedsForMethodsArgs(
+      step.arguments,
+      instance,
+    );
     // instance.getCurrentStep
-    console.log(`calling method ${methodName} with args ${JSON.stringify(methodArgs)}`);
+    console.log(
+      `calling method ${methodName} with args ${JSON.stringify(methodArgs)}`,
+    );
 
     console.log('EXECUTE STEP');
-    const methodData = this.encodeFunctionData(contract, methodName, methodArgs);
+    const methodData = this.encodeFunctionData(
+      contract,
+      methodName,
+      methodArgs,
+    );
     console.info(`encoded method data: ${methodData}`);
-    const target = contract.address
+    const target = contract.address;
     console.info(`target conract: ${target}`);
     console.info(`wallet address: ${instance.workflow.walletAddress}`);
     const tx = {
@@ -121,56 +148,73 @@ export class WorkflowProcessorService {
       // maxFeePerGas: 10000000000,
       // maxPriorityFeePerGas: 1000000000,
       // gasLimit: 100000,
-      value: 0
+      value: 0,
     };
 
-    console.log(methodData)
+    console.log(methodData);
     // this.circleService.sendTransaction(instance.workflow.walletAddress, target, methodName, methodArgs);
     this.transactionsManagerService.sendTransaction(tx, instance);
   }
   encodeFunctionData(contract: Contract, methodName: string, methodArgs: any) {
-    console.log({ methodArgs })
+    console.log({ methodArgs });
     const methodArgsKeysRemoved = methodArgs.map((arg: any) => {
       if (typeof arg === 'object' && arg !== null && !Array.isArray(arg)) {
         return Object.values(arg)[0];
       }
-      return arg
-    })
-    console.debug({ methodArgsKeysRemoved })
-    return contract.interface.encodeFunctionData(methodName, methodArgsKeysRemoved)
+      return arg;
+    });
+    console.debug({ methodArgsKeysRemoved });
+    return contract.interface.encodeFunctionData(
+      methodName,
+      methodArgsKeysRemoved,
+    );
   }
 
-  async fetchFeedsForMethodsArgs(methodArgs: string[], instance: WorkflowInstanceEntity): Promise<any[]> {
-    const finalMethodArgs = await Promise.all(methodArgs.map(async (arg: any) => {
-      if (typeof arg === 'string' && arg.startsWith('&')) {
-        const fetchedArg = await this.modulesManagerService.fetchFeed(instance, arg);
-        return fetchedArg;
-      }
-      return arg
-    }))
+  async fetchFeedsForMethodsArgs(
+    methodArgs: string[],
+    instance: WorkflowInstanceEntity,
+  ): Promise<any[]> {
+    const finalMethodArgs = await Promise.all(
+      methodArgs.map(async (arg: any) => {
+        if (typeof arg === 'string' && arg.startsWith('&')) {
+          const fetchedArg = await this.modulesManagerService.fetchFeed(
+            instance,
+            arg,
+          );
+          return fetchedArg;
+        }
+        return arg;
+      }),
+    );
     return finalMethodArgs;
   }
 
-  async checkPreconditions(step: Step, instance: WorkflowInstanceEntity): Promise<boolean> {
+  async checkPreconditions(
+    step: Step,
+    instance: WorkflowInstanceEntity,
+  ): Promise<boolean> {
     console.log('Checking preconditions for step:', step.name);
     if (!step.prerequisites?.length) {
       console.log('No prerequisites for step:', step.name);
-      return true
+      return true;
     }
-    const { contracts } = instance.workflow
+    const { contracts } = instance.workflow;
     for (const pre of step.prerequisites) {
       const data = await this.conditionsService.fetchCondition(pre, contracts);
-      console.log({ data })
-      const isTrue = await this.conditionsService.checkCondition(pre.condition, data);
-      console.log({ isTrue })
+      console.log({ data });
+      const isTrue = await this.conditionsService.checkCondition(
+        pre.condition,
+        data,
+      );
+      console.log({ isTrue });
       if (!isTrue) {
         console.error('Precondition is false:', pre);
         await this.fulfillPrecondition(pre, instance);
-        return false
+        return false;
         // throw new Error(`Precondition failed: ${pre}`);
       } else {
         console.log('Precondition is true');
-        return true
+        return true;
       }
     }
     return true;
@@ -180,7 +224,10 @@ export class WorkflowProcessorService {
     console.log('Fulfilling precondition:', pre);
     let contract;
     if (pre.method === 'allowance') {
-      const contract = await this.providerService.loadContract(pre.contract, instance.workflow.contracts);
+      const contract = await this.providerService.loadContract(
+        pre.contract,
+        instance.workflow.contracts,
+      );
 
       const methodName = 'approve';
 
@@ -190,23 +237,25 @@ export class WorkflowProcessorService {
       }
 
       const methodArgs = [pre.methodArgs[1], pre.condition.value];
-      console.log(`calling method ${methodName} with args ${JSON.stringify(methodArgs)}`);
-      console.log("PRECONDDITIONS:")
-      const methodData = this.encodeFunctionData(contract, methodName, methodArgs);
-      const target = contract.address
+      console.log(
+        `calling method ${methodName} with args ${JSON.stringify(methodArgs)}`,
+      );
+      console.log('PRECONDDITIONS:');
+      const methodData = this.encodeFunctionData(
+        contract,
+        methodName,
+        methodArgs,
+      );
+      const target = contract.address;
       // networkName = contract.network
       console.log(contract.network);
       const txRequest = {
         to: target,
         value: 0,
-        data: methodData
+        data: methodData,
       };
 
       this.transactionsManagerService.sendTransaction(txRequest, instance);
     }
-
-
-
-
   }
 }

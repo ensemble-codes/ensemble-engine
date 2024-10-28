@@ -20,30 +20,41 @@ export class SnapshotsService {
 
   async findAll(): Promise<Snapshot[]> {
     return this.snapshotModel.find().exec();
-  } 
+  }
 
   async findOne(id: string): Promise<Snapshot> {
     return this.snapshotModel.findById(id).exec();
   }
 
   async findLatest(tokenAddress: string, network: string): Promise<Snapshot> {
-    return this.snapshotModel.findOne({ tokenAddress, network }).sort({ blockNumber: -1 }).exec();
+    return this.snapshotModel
+      .findOne({ tokenAddress, network })
+      .sort({ blockNumber: -1 })
+      .exec();
   }
 
   async update(id: string, Snapshot: Snapshot): Promise<Snapshot> {
-    return this.snapshotModel.findByIdAndUpdate(id, Snapshot, { new: true }).exec();
+    return this.snapshotModel
+      .findByIdAndUpdate(id, Snapshot, { new: true })
+      .exec();
   }
 
   async delete(id: string): Promise<Snapshot> {
     return this.snapshotModel.findByIdAndDelete(id).exec();
   }
 
-  async getLatestBalances(tokenAddress: string, network: string): Promise<Balance[]> {
+  async getLatestBalances(
+    tokenAddress: string,
+    network: string,
+  ): Promise<Balance[]> {
     const latestSnapshot = await this.findLatest(tokenAddress, network);
     if (!latestSnapshot) {
-      throw new Error(`No snapshot found for tokenAddress: ${tokenAddress} and network: ${network}`);
+      throw new Error(
+        `No snapshot found for tokenAddress: ${tokenAddress} and network: ${network}`,
+      );
     }
-    return this.balancesService.getBalancesBySnapshot(latestSnapshot._id.toString());
+    return this.balancesService.getBalancesBySnapshot(
+      latestSnapshot._id.toString(),
+    );
   }
 }
-

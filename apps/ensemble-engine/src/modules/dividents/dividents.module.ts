@@ -9,11 +9,12 @@ import { SnapshotBuilderService } from '../snapshots/snapshot-builder.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Snapshot.name, schema: SnapshotSchema }]),
+    MongooseModule.forFeature([
+      { name: Snapshot.name, schema: SnapshotSchema },
+    ]),
     MongooseModule.forFeature([{ name: Balance.name, schema: BalanceSchema }]),
   ],
   controllers: [DividentsController],
   providers: [DividentsService],
 })
-
 export class DividentsModule {}

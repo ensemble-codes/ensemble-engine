@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsObject, ArrayNotEmpty, IsArray } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsObject,
+  ArrayNotEmpty,
+  IsArray,
+} from 'class-validator';
 
 export class CreateAbiDto {
   @IsString()

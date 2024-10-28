@@ -6,8 +6,10 @@ import { getNetwork } from './networks';
 
 @Injectable()
 export class BlockchainProviderService {
-  private providers: { [networkName: string]: ethers.providers.JsonRpcProvider } = {};
-  
+  private providers: {
+    [networkName: string]: ethers.providers.JsonRpcProvider;
+  } = {};
+
   private networkUrls = {
     fuse: process.env.PROVIDER_URL_FUSE,
     sepolia: process.env.PROVIDER_URL_SEPOLIA,
@@ -17,20 +19,19 @@ export class BlockchainProviderService {
     avalanche_etna: process.env.PROVIDER_URL_AVALANCHE_ETNA,
   }
 
-  constructor(
-    private readonly abiService: AbiService,
-  ) {
+  constructor(private readonly abiService: AbiService) {
     for (const [network, url] of Object.entries(this.networkUrls)) {
       if (url) {
         console.log(`Initializing provider for ${network}.`);
         this.providers[network] = new ethers.providers.JsonRpcProvider(url);
-        console.log(`Initialized provider for ${network} with url endpoint: ${url}.`);
+        console.log(
+          `Initialized provider for ${network} with url endpoint: ${url}.`,
+        );
       } else {
         console.warn(`RPC URL for ${network} is not set`);
       }
     }
   }
-
 
   getProvider(networkName: string): ethers.providers.JsonRpcProvider {
     if (!this.networkUrls[networkName]) {
@@ -43,30 +44,39 @@ export class BlockchainProviderService {
 
   getChainId(networkName: string): number {
     const network = getNetwork(networkName);
-    return network.chainId
+    return network.chainId;
   }
-
 
   async loadContract(contractName: string, contracts: ContractEntity[]) {
     console.log(`loading contract ${contractName}`);
-    const contractEntity = contracts.find(c => c.name === contractName);
+    const contractEntity = contracts.find((c) => c.name === contractName);
     if (!contractEntity) {
       throw new Error(`Contract ${contractName} not found`);
     }
-    const contractABI = await this.abiService.findByName(contractEntity.abi)
+    const contractABI = await this.abiService.findByName(contractEntity.abi);
     const provider = this.getProvider(contractEntity.network);
-    const contract = new ethers.Contract(contractEntity.address, contractABI.abi, provider);
-    console.log(`contract ${contractName} loaded, address: ${contractEntity.address}, network: ${contractEntity.network}`);
+    const contract = new ethers.Contract(
+      contractEntity.address,
+      contractABI.abi,
+      provider,
+    );
+    console.log(
+      `contract ${contractName} loaded, address: ${contractEntity.address}, network: ${contractEntity.network}`,
+    );
 
-    return contract
+    return contract;
   }
 
-  async loadEvent(contractName: string, eventName: string, contracts: ContractEntity[]): Promise<string> {
-    const contractEntity = contracts.find(c => c.name === contractName);
+  async loadEvent(
+    contractName: string,
+    eventName: string,
+    contracts: ContractEntity[],
+  ): Promise<string> {
+    const contractEntity = contracts.find((c) => c.name === contractName);
     if (!contractEntity) {
       throw new Error(`Contract ${contractName} not found`);
     }
-    const contractABI = await this.abiService.findByName(contractEntity.abi)
+    const contractABI = await this.abiService.findByName(contractEntity.abi);
     const eventSignature = this.getEventSignature(contractABI.abi, eventName);
     console.log(`event ${eventName} signature: ${eventSignature}`);
     return eventSignature;
@@ -75,13 +85,20 @@ export class BlockchainProviderService {
   async fetchTokenDetails(tokenAddress: string, network: string) {
     const provider = this.getProvider(network);
     const chainId = this.getChainId(network);
-    const tokenContract = new ethers.Contract(tokenAddress, ['function name() view returns (string)', 'function symbol() view returns (string)', 'function decimals() view returns (uint8)'], provider);
+    const tokenContract = new ethers.Contract(
+      tokenAddress,
+      [
+        'function name() view returns (string)',
+        'function symbol() view returns (string)',
+        'function decimals() view returns (uint8)',
+      ],
+      provider,
+    );
     const name = await tokenContract.name();
     const symbol = await tokenContract.symbol();
     const decimals = Number(await tokenContract.decimals());
-    return { name, symbol, decimals, address: tokenAddress, chainId }
+    return { name, symbol, decimals, address: tokenAddress, chainId };
   }
-
 
   // async fetchEvents(tokenAddress: string, network: string, fromBlock: number, toBlock: number) {
   //   const provider = this.getProvider(network);
@@ -99,8 +116,14 @@ export class BlockchainProviderService {
   //   }));
   // }
 
-
-  async fetchEvents(contract: Contract, network: string, eventSignature: string, fromBlock: number, toBlock: number, eventLimit: number = 1000): Promise<any[]> {
+  async fetchEvents(
+    contract: Contract,
+    network: string,
+    eventSignature: string,
+    fromBlock: number,
+    toBlock: number,
+    eventLimit: number = 1000,
+  ): Promise<any[]> {
     const provider = this.getProvider(network);
     toBlock = Number(toBlock);
     fromBlock = Number(fromBlock);
@@ -118,13 +141,15 @@ export class BlockchainProviderService {
         fromBlock: currentBlock,
         toBlock: toBlockTmp,
         address: contract.address,
-        topics: [
-          eventSignature
-        ]
+        topics: [eventSignature],
       };
-      console.log(`fetching events from block ${currentBlock} to ${toBlockTmp}, on ${network}`)
+      console.log(
+        `fetching events from block ${currentBlock} to ${toBlockTmp}, on ${network}`,
+      );
       const fetchedLogs = await provider.getLogs(filter);
-      console.log(`fetched ${fetchedLogs.length} logs from block ${currentBlock} to ${toBlockTmp}, on ${network}`)
+      console.log(
+        `fetched ${fetchedLogs.length} logs from block ${currentBlock} to ${toBlockTmp}, on ${network}`,
+      );
       logs.push(...fetchedLogs);
 
       if (currentBlock === toBlockTmp) {
@@ -132,7 +157,7 @@ export class BlockchainProviderService {
         break;
       }
 
-      eventCount+=fetchedLogs.length;
+      eventCount += fetchedLogs.length;
       if (eventCount >= eventLimit) {
         console.debug(`Reached event limit ${eventLimit}, stopping fetch`);
         break;
@@ -151,22 +176,24 @@ export class BlockchainProviderService {
     //   };
     // });
 
-    return logs
+    return logs;
   }
 
   getEventSignature(abi, eventName) {
     // Find the event by name in the ABI
-    const eventAbi = abi.find((item) => item.type === 'event' && item.name === eventName);
+    const eventAbi = abi.find(
+      (item) => item.type === 'event' && item.name === eventName,
+    );
 
     if (!eventAbi) {
-        throw new Error(`Event ${eventName} not found in ABI`);
+      throw new Error(`Event ${eventName} not found in ABI`);
     }
 
     // Construct the event signature
-    const inputs = eventAbi.inputs.map(input => input.type).join(',');
+    const inputs = eventAbi.inputs.map((input) => input.type).join(',');
     const signature = `${eventAbi.name}(${inputs})`;
 
     // Return the keccak256 hash of the event signature (the event topic)
     return ethers.utils.id(signature);
-}
+  }
 }

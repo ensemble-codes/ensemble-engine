@@ -7,7 +7,7 @@ import { group } from 'console';
 import { Workflow } from 'libs/shared/src/workflows/entities/workflow.entity';
 import { CircleService } from '../workflows/circle/circle.service';
 
-const generateId = () =>  Math.random().toString(16).slice(2)
+const generateId = () => Math.random().toString(16).slice(2);
 
 @Injectable()
 export class WalletsService {
@@ -19,77 +19,76 @@ export class WalletsService {
   /**
    * Creates a specified number of Ethereum wallets and groups them under a unique identifier.
    * Each wallet is randomly generated.
-   * 
+   *
    * @param {number} numberOfWallets - The number of wallets to create.
    * @returns {string} The identifier for the group of created wallets. This identifier can be used to retrieve the group.
    */
   async create(ownerId: string, walletType: string = 'internal') {
-    
-    const wallet = EthersWallet.createRandom()
+    const wallet = EthersWallet.createRandom();
     if (walletType === 'internal') {
-      console.log(`generating local wallet with address ${wallet.address}`)
+      console.log(`generating local wallet with address ${wallet.address}`);
       const newWallet = new this.walletModel({
         groupId: generateId(),
         address: wallet.address,
         privateKey: wallet.privateKey,
-        owner: ownerId
+        owner: ownerId,
       });
       return newWallet.save();
     } else if (walletType === 'circle') {
-      console.log(`generating circle wallet`)
-      const { address, groupId } = await this.circleService.createWallet()
+      console.log(`generating circle wallet`);
+      const { address, groupId } = await this.circleService.createWallet();
       const newWallet = new this.walletModel({
         groupId,
         address,
         owner: ownerId,
-        type: 'circle'
+        type: 'circle',
       });
       return newWallet.save();
     }
   }
 
-    /**
+  /**
    * Creates a specified number of Ethereum wallets and groups them under a unique identifier.
    * Each wallet is randomly generated.
-   * 
+   *
    * @param {number} numberOfWallets - The number of wallets to create.
    * @returns {string} The identifier for the group of created wallets. This identifier can be used to retrieve the group.
    */
-    insert(ownerId: string, address: string) {
-      console.log(`inserting external wallet with address ${address}`)
-      const groupId = generateId()
-      const newWallet = new this.walletModel({
-        groupId,
-        address: address,
-        type: 'external',
-        owner: ownerId
-      });
-      // TODO: Maybe add await here
-      return newWallet.save();
-    }
+  insert(ownerId: string, address: string) {
+    console.log(`inserting external wallet with address ${address}`);
+    const groupId = generateId();
+    const newWallet = new this.walletModel({
+      groupId,
+      address: address,
+      type: 'external',
+      owner: ownerId,
+    });
+    // TODO: Maybe add await here
+    return newWallet.save();
+  }
 
-    /**
-     * Retrieves all wallets owned by a specific user.
-     * @param {string} ownerId - The identifier of the wallet owner.
-     * @returns {Promise<Wallet[]>} An array of wallets owned by the user.
-     */
-    async findWalletsByOwner(ownerId: string): Promise<Wallet[]> {
-      const wallets = await this.walletModel.find({ owner: ownerId }).exec();
-      return wallets;
-    }
-    /**
+  /**
+   * Retrieves all wallets owned by a specific user.
+   * @param {string} ownerId - The identifier of the wallet owner.
+   * @returns {Promise<Wallet[]>} An array of wallets owned by the user.
+   */
+  async findWalletsByOwner(ownerId: string): Promise<Wallet[]> {
+    const wallets = await this.walletModel.find({ owner: ownerId }).exec();
+    return wallets;
+  }
+  /**
    * Retrieves a group of wallets by their identifier.
    * @param {string} id - The identifier of the wallet group.
    * @returns {Wallet[]} An array of wallets if the group is found.
    * @throws {NotFoundException} Throws if no group is found for the given ID.
    */
-    async getWalletsByGroup(groupId: string): Promise<Wallet[]> {
-      const wallets = await this.walletModel.find({ groupId }).exec();
-      if (!group) {
-        throw new NotFoundException(`Wallet group with ID ${groupId} not found.`);
-      }
-      return wallets;
+  async getWalletsByGroup(groupId: string): Promise<Wallet[]> {
+    const wallets = await this.walletModel.find({ groupId }).exec();
+    if (!group) {
+      throw new NotFoundException(`Wallet group with ID ${groupId} not found.`);
     }
+    return wallets;
+  }
 
   /**
    * Retrieves a wallet by its address.
@@ -97,16 +96,19 @@ export class WalletsService {
    * @returns {Promise<Wallet>} The wallet document if found.
    * @throws {NotFoundException} Throws if no wallet is found for the given address.
    */
-    async findOne(address: string, withPk: boolean = false): Promise<Wallet> {
-      const wallet = await this.walletModel.findOne({ address }).select(withPk ? '+privateKey' : '').exec();
-      if (!wallet) {
-          throw new NotFoundException(`Wallet with address ${address} not found.`);
-      }
-      return wallet;
+  async findOne(address: string, withPk: boolean = false): Promise<Wallet> {
+    const wallet = await this.walletModel
+      .findOne({ address })
+      .select(withPk ? '+privateKey' : '')
+      .exec();
+    if (!wallet) {
+      throw new NotFoundException(`Wallet with address ${address} not found.`);
     }
+    return wallet;
+  }
 
-    async getAllGroupIds(): Promise<string[]> {
-      const groups = await this.walletModel.distinct('groupId').exec();
-      return groups;
-    }
+  async getAllGroupIds(): Promise<string[]> {
+    const groups = await this.walletModel.distinct('groupId').exec();
+    return groups;
+  }
 }

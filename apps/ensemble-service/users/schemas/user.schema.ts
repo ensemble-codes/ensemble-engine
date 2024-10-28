@@ -6,7 +6,7 @@ export class User extends Document {
   @Prop({ required: true, unique: true })
   username: string;
 
-  @Prop({ required: true })
+  @Prop()
   apiKey: string;
 }
 

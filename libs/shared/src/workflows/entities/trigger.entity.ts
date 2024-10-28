@@ -1,5 +1,4 @@
-import { Condition } from "./condition.entity";
-
+import { Condition } from './condition.entity';
 
 export class Trigger {
   name: string;

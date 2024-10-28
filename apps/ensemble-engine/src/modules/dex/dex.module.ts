@@ -6,6 +6,6 @@ import { TransactionsManagerModule } from '../../transactions/transactions-manag
 @Module({
   imports: [BlockchainProviderModule, TransactionsManagerModule],
   providers: [DexService],
-  exports: [DexService]
+  exports: [DexService],
 })
 export class DexModule {}

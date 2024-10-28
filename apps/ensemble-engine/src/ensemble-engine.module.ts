@@ -9,10 +9,9 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGODB_URI),
     ScheduleModule.forRoot(),
-    WorkflowProcessorModule
+    WorkflowProcessorModule,
   ],
   controllers: [],
   providers: [],
 })
 export class EngineAppModule {}
-
