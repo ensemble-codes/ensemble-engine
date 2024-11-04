@@ -26,6 +26,7 @@
     "test:e2e": "jest --config ./apps/ensemble-service/test/jest-e2e.json"
   },
   "dependencies": {
+    "@avalabs/avalanchejs": "^4.0.5",
     "@circle-fin/developer-controlled-wallets": "^4.5.1",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.3",
