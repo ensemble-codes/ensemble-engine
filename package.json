@@ -19,6 +19,7 @@
     "start:engine:debug": "nest start  --debug --watch ensemble-engine",
     "start:service:dev": "nest start --watch",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "example": "NODE_OPTIONS='--loader ts-node/esm' ts-node examples/p-chain/delegate.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
