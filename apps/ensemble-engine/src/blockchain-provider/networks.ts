@@ -30,6 +30,11 @@ const SEPOLIA = {
   chainId: 11155111,
 };
 
+const ARTHERA = {
+  name: 'arthera',
+  chainId: 10242,
+};
+
 const map = {
   fuse: FUSE,
   avalanche_etna: AVALANCHE_ETNA,
@@ -37,6 +42,7 @@ const map = {
   op_sepolia: OP_SEPOLIA,
   base_sepolia: BASE_SEPOLIA,
   sepolia: SEPOLIA,
+  arthera: ARTHERA,
 };
 
 export const getNetwork = (networkName: string): Network => map[networkName];
