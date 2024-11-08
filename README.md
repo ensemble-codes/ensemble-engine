@@ -24,14 +24,14 @@ Start the service to process requests
 
 ```bash
 # development
-pnpm start
+pnpm start:service
 
 # watch mode
-pnpm run start:dev
+pnpm run start:service:dev
 
 # production mode
-pnpm run build
-pnpm run start:prod
+pnpm run build:service
+pnpm run start:service:prod
 ```
 
 ### Engine
@@ -46,6 +46,7 @@ pnpm run start:engine
 pnpm run start:engine:dev
 
 # production mode
+pnpm run build:engine
 pnpm run start:engine:prod
 ```
 
