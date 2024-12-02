@@ -59,7 +59,7 @@ export class WorkflowProcessorService {
       }
       const instanceEntity = new WorkflowInstanceEntity(
         instanceDoc.id,
-        instanceDoc.workflow.toJSON(),
+        instanceDoc.workflow.toObject(),
         instanceDoc.status,
         instanceDoc.currentStepIndex,
         instanceDoc.triggerSnapshots,
