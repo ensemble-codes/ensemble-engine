@@ -6,9 +6,6 @@ export class CircleService {
   private client: ReturnType<typeof initiateDeveloperControlledWalletsClient>;
 
   constructor() {
-    console.log(
-      `initializing circle client with api key ${process.env.CIRCLE_API_KEY} and entity secret ${process.env.CIRCLE_ENTITY_SECRET}`,
-    );
     this.client = initiateDeveloperControlledWalletsClient({
       apiKey: process.env.CIRCLE_API_KEY,
       entitySecret: process.env.CIRCLE_ENTITY_SECRET,
