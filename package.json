@@ -23,6 +23,7 @@
     "start:engine:prod": "node dist/apps/ensemble-engine/main",
     "start:engine:debug": "nest start --debug --watch ensemble-engine",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "example": "NODE_OPTIONS='--loader ts-node/esm' ts-node examples/p-chain/delegate.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -30,6 +31,7 @@
     "test:e2e": "jest --config ./apps/ensemble-service/test/jest-e2e.json"
   },
   "dependencies": {
+    "@avalabs/avalanchejs": "^4.0.5",
     "@circle-fin/developer-controlled-wallets": "^4.5.1",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.3",
@@ -42,7 +44,7 @@
     "@nestjs/schedule": "^4.1.0",
     "@uniswap/router-sdk": "^1.11.1",
     "@uniswap/sdk-core": "^5.3.1",
-    "@uniswap/universal-router-sdk": "^3.0.2",
+    "@uniswap/universal-router-sdk": "3.0.2",
     "@uniswap/v2-sdk": "^4.4.1",
     "@uniswap/v3-sdk": "^3.13.1",
     "@uniswap/v4-sdk": "^1.0.0",
