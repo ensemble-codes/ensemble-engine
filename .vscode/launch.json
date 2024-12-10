@@ -11,6 +11,6 @@
       "console": "integratedTerminal",
       "sourceMaps": true,
       "internalConsoleOptions": "openOnSessionStart"
-    }
+  }
   ]
 }

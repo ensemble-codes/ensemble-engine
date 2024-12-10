@@ -1,5 +1,5 @@
 export class CreateStakingDto {
   avaxPublicUrl: string;
-  pChainAddress: string;
+  P_CHAIN_ADDRESS: string;
   privateKey: string;
 }

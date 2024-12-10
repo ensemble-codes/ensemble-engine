@@ -9,13 +9,16 @@ import { utils } from '@avalabs/avalanchejs';
 import { Context } from '@avalabs/avalanchejs';
 import { pvm } from '@avalabs/avalanchejs';
 import { WorkflowInstanceEntity } from 'libs/shared/src/workflows/entities/instance.entity';
+import { WalletsService } from 'libs/shared/src/wallets/wallets.service';
 
 
 @Injectable()
 export class StakingService {
   private readonly stakings: Staking[] = [];
-  walletsService: any;
 
+  constructor(private readonly walletsService: WalletsService) {
+    console.log('StakingService created');
+  }
   create(createStakingDto: CreateStakingDto) {
     // TODO: Implement staking creation logic
     return 'This action adds a new staking';
@@ -42,8 +45,9 @@ export class StakingService {
 
     // TODO: Implement staking with AVAX logic
   async stake(createStakingDto: CreateStakingDto, instance: WorkflowInstanceEntity) {
-    const { avaxPublicUrl, pChainAddress } = createStakingDto;
-    
+    console.log('Staking DTO:', createStakingDto);
+    const pChainAddress = createStakingDto.P_CHAIN_ADDRESS;
+    const avaxPublicUrl = "https://api.avax-test.network"
     if (!pChainAddress) {
       throw new Error('Missing staking parameters.');
     }
