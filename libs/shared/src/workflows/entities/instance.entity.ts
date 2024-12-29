@@ -50,7 +50,7 @@ export class WorkflowInstanceEntity {
 
   // Method to mark the instance as completed
   complete(): void {
-    this.status = 'completed';
+    // this.status = 'completed';
     this.completedAt = new Date();
   }
 

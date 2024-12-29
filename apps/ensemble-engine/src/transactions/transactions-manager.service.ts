@@ -15,6 +15,7 @@ export class TransactionsManagerService {
     const provider = this.providerService.getProvider(
       workflowInstance.getCurrentNetwork(),
     );
+    console.log('workflowInstance.getWalletAddress', workflowInstance.getWalletAddress());
     const wallet = await this.getSignerWallet(
       workflowInstance.getWalletAddress(),
       provider,
