@@ -3,7 +3,7 @@ import { BlockchainProviderService } from '../blockchain-provider/blockchain-pro
 import { Trigger } from 'libs/shared/src/workflows/entities/trigger.entity';
 import { ContractEntity } from 'libs/shared/src/workflows/entities/contract.entity';
 import { Condition } from 'libs/shared/src/workflows/entities/condition.entity';
-import { Abi } from '../../../ensemble-service/src/abi/entities/abi.entity';
+import { BigNumber } from 'ethers';
 
 @Injectable()
 export class ConditionsService {
@@ -21,8 +21,8 @@ export class ConditionsService {
       `condition trigger ${trigger.name}. trigger method: ${trigger.method}, args: ${trigger.methodArgs}`,
     );
     const callMethod = contract[trigger.method];
-    console.debug(`call method: ${callMethod}`);
-    const value = await contract[callMethod](...trigger.methodArgs);
+    console.debug(`call method: ${trigger.method}`);
+    const value = await callMethod(...trigger.methodArgs);
     console.log(
       `condition for trigger ${trigger.name} fetched. Value: ${value}`,
     );
@@ -80,13 +80,16 @@ export class ConditionsService {
     console.log(
       `Checking condition ${condition.op} with value ${condition.value} on data ${data}`,
     );
+    const dataBN = BigNumber.from(data);
+    const conditionValueBN = BigNumber.from(condition.value);
+
     switch (condition.op) {
       case 'eq':
-        return data === condition.value;
+        return dataBN.eq(conditionValueBN);
       case 'greaterThan':
-        return data >= condition.value;
+        return dataBN.gte(conditionValueBN);
       case 'lessThan':
-        return data <= condition.value;
+        return dataBN.lte(conditionValueBN);
       default:
         console.warn('Invalid condition operator');
         return false;

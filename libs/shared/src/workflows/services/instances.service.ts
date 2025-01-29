@@ -184,7 +184,7 @@ export class WorkflowInstancesService {
       console.log(
         `Instance ${instance.id} has completed all steps. Setting status to completed.`,
       );
-      instance.status = 'completed';
+      // instance.status = 'completed';
       instance.currentStepIndex = 0;
       instance.completedAt = new Date();
     }

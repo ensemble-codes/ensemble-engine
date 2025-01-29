@@ -18,6 +18,7 @@ export class BlockchainProviderService {
     avalanche_fuji: process.env.PROVIDER_URL_AVALANCHE_FUJI,
     avalanche_etna: process.env.PROVIDER_URL_AVALANCHE_ETNA,
     arthera: process.env.PROVIDER_URL_ARTHERA,
+    bnb: process.env.PROVIDER_URL_BNB_MAINNET,
   }
 
   constructor(private readonly abiService: AbiService) {
