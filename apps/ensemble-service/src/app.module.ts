@@ -5,6 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AbiModule } from './abi/abi.module';
 import { WalletsModule } from './wallets/wallets.module';
 import { AuthModule } from './auth/auth.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { DrawsModule } from './draws/draws.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { AuthModule } from './auth/auth.module';
     WorkflowsModule,
     WalletsModule,
     AbiModule,
+    SubscriptionsModule,
+    DrawsModule,
   ],
   controllers: [],
   providers: [],

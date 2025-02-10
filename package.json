@@ -40,6 +40,7 @@
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/schedule": "^4.1.0",
+    "@nestjs/swagger": "^11.0.3",
     "@uniswap/router-sdk": "^1.11.1",
     "@uniswap/sdk-core": "^5.3.1",
     "@uniswap/universal-router-sdk": "^3.0.2",
