@@ -2,6 +2,7 @@ import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SubscriptionsService } from './subscriptions.service';
 import { CreateSubscriptionDto, SubscriptionResponseDto } from './dto/subscription.dto';
+import { Subscription } from './entities/subscription.entity';
 
 @ApiTags('subscriptions')
 @Controller('subscriptions')
@@ -13,12 +14,11 @@ export class SubscriptionsController {
   @ApiResponse({
     status: 201,
     description: 'Subscription created successfully',
-    type: SubscriptionResponseDto 
+    type: Subscription 
   })
   async createSubscription(
     @Body() createSubscriptionDto: CreateSubscriptionDto,
-  ): Promise<SubscriptionResponseDto> {
-    console.log('createSubscriptionDto', createSubscriptionDto);
+  ): Promise<Subscription> {
     return this.subscriptionsService.createSubscription(createSubscriptionDto);
   }
 

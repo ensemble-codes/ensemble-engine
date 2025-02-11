@@ -4,7 +4,7 @@ import { SubscriptionOption, NumberPickingStrategy } from '../dto/subscription.d
 
 @Schema({ timestamps: true })
 export class Subscription extends Document {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   ownerAddress: string;
 
   @Prop({ required: true, enum: SubscriptionOption, type: Number })

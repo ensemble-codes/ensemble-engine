@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateSubscriptionDto, SubscriptionResponseDto, SubscriptionOption } from './dto/subscription.dto';
 import { Subscription } from './entities/subscription.entity';
+import { Wallet } from 'ethers';
 
 @Injectable()
 export class SubscriptionsService {
@@ -34,9 +35,9 @@ export class SubscriptionsService {
 
   async createSubscription(
     createSubscriptionDto: CreateSubscriptionDto,
-  ): Promise<SubscriptionResponseDto> {
+  ): Promise<Subscription> {
     // TODO: Implement blockchain interaction to create subscription
-    const subscriptionAddress = '0x...'; // This should come from blockchain
+    const subscriptionAddress = Wallet.createRandom().address;
 
     const details = this.subscriptionDetails[createSubscriptionDto.subscriptionOption];
     
@@ -53,14 +54,10 @@ export class SubscriptionsService {
 
     await subscription.save();
 
-    return {
-      ownerAddress: subscription.ownerAddress,
-      subscriptionOption: subscription.subscriptionOption,
-      subscriptionAddress: subscription.subscriptionAddress,
-    };
+    return subscription;
   }
 
-  async getSubscription(ownerAddress: string): Promise<SubscriptionResponseDto> {
+  async getSubscription(ownerAddress: string): Promise<Subscription> {
     const subscription = await this.subscriptionModel
       .findOne({ ownerAddress, isActive: true })
       .exec();
@@ -69,10 +66,6 @@ export class SubscriptionsService {
       return null;
     }
 
-    return {
-      ownerAddress: subscription.ownerAddress,
-      subscriptionOption: subscription.subscriptionOption,
-      subscriptionAddress: subscription.subscriptionAddress,
-    };
+    return subscription;
   }
 } 
