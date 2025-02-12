@@ -4,25 +4,35 @@ import { Model } from 'mongoose';
 import { CreateSubscriptionDto, SubscriptionResponseDto, SubscriptionOption } from './dto/subscription.dto';
 import { Subscription } from './entities/subscription.entity';
 import { Wallet } from 'ethers';
+import { DrawsService } from '../draws/draws.service';
 
 @Injectable()
 export class SubscriptionsService {
   private readonly subscriptionDetails = {
     [SubscriptionOption.SMALL]: {
-      tickets: 50,
-      draws: 10,
+      totalTickets: 50,
+      totalDraws: 10,
+      ticketsRemaining: 50,
+      drawsRemaining: 10,
+      ticketsPerDraw: 5,
       price: 60,
       discount: 15,
     },
     [SubscriptionOption.MEDIUM]: {
-      tickets: 75,
-      draws: 15,
+      totalTickets: 75,
+      totalDraws: 15,
+      ticketsRemaining: 75,
+      drawsRemaining: 15,
+      ticketsPerDraw: 5,
       price: 80,
       discount: 20,
     },
     [SubscriptionOption.LARGE]: {
-      tickets: 100,
-      draws: 20,
+      totalTickets: 100,
+      totafDraws: 20,
+      drawsRemaining: 100,
+      totalDraws: 20,
+      ticketsPerDraw: 5,
       price: 150,
       discount: 30,
     },
@@ -31,6 +41,7 @@ export class SubscriptionsService {
   constructor(
     @InjectModel(Subscription.name)
     private subscriptionModel: Model<Subscription>,
+    private drawService: DrawsService,
   ) {}
 
   async createSubscription(
@@ -45,14 +56,14 @@ export class SubscriptionsService {
       ownerAddress: createSubscriptionDto.ownerAddress,
       subscriptionOption: createSubscriptionDto.subscriptionOption,
       subscriptionAddress,
-      numberPickingStrategy: createSubscriptionDto.numberPickingStrategy,
-      ticketsRemaining: details.tickets,
-      drawsRemaining: details.draws,
       expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       isActive: true,
+      ...details,
     });
-
+  
     await subscription.save();
+
+    await this.drawService.createDraw(subscription);
 
     return subscription;
   }

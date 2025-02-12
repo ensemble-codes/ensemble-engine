@@ -9,11 +9,14 @@ export enum DrawStatus {
 
 @Schema({ timestamps: true })
 export class Draw extends Document {
-  @Prop({ required: true, unique: true })
-  drawId: number;
+  @Prop({ required: true })
+  lotteryId: number;
 
-  @Prop({ required: true, type: [Number] })
-  winningNumbers: number[];
+  @Prop({ required: true })
+  subscriptionId: string;
+
+  @Prop({ required: true, type: [[Number]] })
+  selectedNumbers: number[][];
 
   @Prop({ required: true })
   drawDate: Date;
@@ -25,13 +28,7 @@ export class Draw extends Document {
   status: DrawStatus;
 
   @Prop({ type: Map, of: String })
-  prizes: Map<string, string>;
-
-  @Prop({ default: Date.now })
-  createdAt: Date;
-
-  @Prop({ default: Date.now })
-  updatedAt: Date;
+  winningNumbers: number[];
 }
 
 export const DrawSchema = SchemaFactory.createForClass(Draw); 

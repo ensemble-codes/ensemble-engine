@@ -11,10 +11,10 @@ export class Subscription extends Document {
   subscriptionOption: SubscriptionOption;
 
   @Prop({ required: true })
-  subscriptionAddress: string;
+  totalTickets: number;
 
-  @Prop({ required: true, enum: NumberPickingStrategy, type: Number })
-  numberPickingStrategy: NumberPickingStrategy;
+  @Prop({ required: true })
+  totalDraws: number;
 
   @Prop({ required: true })
   ticketsRemaining: number;
@@ -22,8 +22,23 @@ export class Subscription extends Document {
   @Prop({ required: true })
   drawsRemaining: number;
 
+  @Prop({ required: true })
+  ticketsPerDraw: number;
+
   @Prop({ default: true })
   isActive: boolean;
+
+  @Prop({ required: true })
+  price: number;
+
+  @Prop({ required: true })
+  discount: number;
+
+  @Prop({ required: true })
+  subscriptionAddress: string;
+
+  @Prop({ required: true, enum: NumberPickingStrategy, type: Number, default: NumberPickingStrategy.RANDOM })
+  numberPickingStrategy: NumberPickingStrategy;
 }
 
 export const SubscriptionSchema = SchemaFactory.createForClass(Subscription); 

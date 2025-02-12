@@ -22,12 +22,6 @@ export class CreateSubscriptionDto {
     description: 'Subscription package option',
   })
   subscriptionOption: SubscriptionOption;
-
-  @ApiProperty({
-    enum: NumberPickingStrategy,
-    description: 'How numbers are picked for tickets',
-  })
-  numberPickingStrategy: NumberPickingStrategy;
 }
 
 export class SubscriptionResponseDto {

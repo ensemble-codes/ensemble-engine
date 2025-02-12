@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DrawResponseDto } from './dto/draw.dto';
 import { Draw, DrawStatus } from './entities/draw.entity';
+import { Subscription } from '../subscriptions/entities/subscription.entity';
 
 @Injectable()
 export class DrawsService {
@@ -11,15 +12,16 @@ export class DrawsService {
     private drawModel: Model<Draw>,
   ) {}
 
-  async getDraw(drawId: number): Promise<DrawResponseDto> {
-    const draw = await this.drawModel.findOne({ drawId }).exec();
+  async getDraw(lotteryId: number): Promise<DrawResponseDto> {
+    const draw = await this.drawModel.findOne({ lotteryId }).exec();
     
     if (!draw) {
-      throw new NotFoundException(`Draw with ID ${drawId} not found`);
+      throw new NotFoundException(`Draw with ID ${lotteryId} not found`);
     }
 
     return {
-      drawId: draw.drawId,
+      lotteryId: draw.lotteryId,
+      selectedNumbers: draw.selectedNumbers,
       winningNumbers: draw.winningNumbers,
       drawDate: draw.drawDate,
       prizePool: draw.prizePool,
@@ -27,9 +29,9 @@ export class DrawsService {
     };
   }
 
-  async getLatestDraw(): Promise<DrawResponseDto> {
+  async getLatestDraw(subscriptionId: string): Promise<DrawResponseDto> {
     const draw = await this.drawModel
-      .findOne({ status: DrawStatus.COMPLETED })
+      .findOne({ subscriptionId })
       .sort({ drawId: -1 })
       .exec();
 
@@ -38,7 +40,8 @@ export class DrawsService {
     }
 
     return {
-      drawId: draw.drawId,
+      lotteryId: draw.lotteryId,
+      selectedNumbers: draw.selectedNumbers,
       winningNumbers: draw.winningNumbers,
       drawDate: draw.drawDate,
       prizePool: draw.prizePool,
@@ -46,24 +49,55 @@ export class DrawsService {
     };
   }
 
-  async getAllDraws(ownerAddress: string): Promise<DrawResponseDto[]> {
-    if (!ownerAddress || !ownerAddress.startsWith('0x')) {
-      throw new Error('Invalid owner address');
-    }
+  async getAllDraws(subscriptionId: string): Promise<DrawResponseDto[]> {
 
     // Here we would typically join with a tickets collection to get draws
     // where the user participated, but for now we'll just get all completed draws
     const draws = await this.drawModel
-      .find({ status: DrawStatus.COMPLETED })
+      .find({ subscriptionId })
       .sort({ drawId: -1 })
       .exec();
 
-    return draws.map(draw => ({
-      drawId: draw.drawId,
+    return draws
+  }
+
+  private generateRandomNumbers(ticketsPerDraw: number): number[] {
+    const numbers = [];
+    const ticketSize = 6;
+    for (let i = 0; i < ticketsPerDraw; i++) {
+      const ticket = [];
+      while (ticket.length < ticketSize) {
+        const randomNumber = Math.floor(Math.random() * 10); // Generate a random digit between 0 and 9
+        ticket.push(randomNumber);
+      }
+      numbers.push(ticket);
+    }
+    return numbers;
+  }
+
+  async createDraw(subscription: Subscription): Promise<DrawResponseDto> {
+
+    const selectedNumbers = this.generateRandomNumbers(subscription.ticketsPerDraw)
+    console.log('Selected Numbers:', selectedNumbers);
+    const draw = new this.drawModel({
+      lotteryId: Math.floor(Math.random() * 1000000), // Generate a random lotteryId
+      subscriptionId: subscription._id,
+      selectedNumbers,
+      drawDate: new Date(),
+      prizePool: '0', // Initial prize pool set to 0
+      status: 'PENDING',
+      winningNumbers: [],
+    });
+
+    await draw.save();
+
+    return {
+      lotteryId: draw.lotteryId,
+      selectedNumbers: draw.selectedNumbers,
       winningNumbers: draw.winningNumbers,
       drawDate: draw.drawDate,
       prizePool: draw.prizePool,
       status: draw.status,
-    }));
+    };
   }
 } 

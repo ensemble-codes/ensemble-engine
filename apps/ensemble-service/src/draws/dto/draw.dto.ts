@@ -5,7 +5,13 @@ export class DrawResponseDto {
     description: 'Unique identifier of the draw',
     example: 123
   })
-  drawId: number;
+  lotteryId: number;
+
+  @ApiProperty({
+    description: 'Array of selected numbers for this draw',
+    example: [[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]]
+  })
+  selectedNumbers: number[][];
 
   @ApiProperty({
     description: 'Array of winning numbers for this draw',

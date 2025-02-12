@@ -8,10 +8,10 @@ import { DrawResponseDto, GetDrawsQueryDto } from './dto/draw.dto';
 export class DrawsController {
   constructor(private readonly drawsService: DrawsService) {}
 
-  @Get(':drawId')
-  @ApiOperation({ summary: 'Get draw by ID' })
+  @Get(':lotteryId')
+  @ApiOperation({ summary: 'Get draw by lottery ID' })
   @ApiParam({
-    name: 'drawId',
+    name: 'lotteryId',
     description: 'Unique identifier of the draw',
     type: Number,
     example: 123
@@ -26,20 +26,28 @@ export class DrawsController {
     description: 'Draw not found'
   })
   async getDraw(
-    @Param('drawId', ParseIntPipe) drawId: number
+    @Param('lotteryId', ParseIntPipe) lotteryId: number
   ): Promise<DrawResponseDto> {
-    return this.drawsService.getDraw(drawId);
+    return this.drawsService.getDraw(lotteryId);
   }
 
-  @Get('latest')
+  @Get('latest/:subscriptionId')
   @ApiOperation({ summary: 'Get latest draw' })
+  @ApiParam({
+    name: 'subscriptionId',
+    description: 'Unique identifier of the subscription',
+    type: String,
+    example: 'sub_12345'
+  })
   @ApiResponse({ 
     status: 200, 
     description: 'Returns the latest draw details',
     type: DrawResponseDto 
   })
-  async getLatestDraw(): Promise<DrawResponseDto> {
-    return this.drawsService.getLatestDraw();
+  async getLatestDraw(
+    @Param('subscriptionId') subscriptionId: string
+  ): Promise<DrawResponseDto> {
+    return this.drawsService.getLatestDraw(subscriptionId);
   }
 
   @Get()
